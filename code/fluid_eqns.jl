@@ -17,7 +17,7 @@ end
 # Universal gas constant [units: joule kelvin^-1 mole^-1]
 const R_univ = 8.3144598
 
-# Functions for unpacking / packing the vector of characteristic variables.
+# Functions for unpacking / packing the vector of conservative variables.
 # Numerical methods for the Navier-Stokes equations typically solve for the
 # vector variable U:
 #   U = [ρ, ρ u, ρ v, E]
