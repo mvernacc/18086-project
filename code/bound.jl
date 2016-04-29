@@ -94,16 +94,16 @@ function pad_bounds(U::Array{Float64,3}, top_bound::Function,
     right_bound::Function, bottom_bound::Function, left_bound::Function)
     U_pad = zeros(size(U, 1) + 2, size(U, 2) + 2, 4)
     for i in 1:size(U, 1)
-        U_pad[i+1, end, :] = top_bound(U[i, end, :])
+        U_pad[i+1, end, :] = top_bound(squeeze(U[i, end, :], (1,2)))
     end
     for j in 1:size(U, 2)
-        U_pad[end, j+1, :] = right_bound(U[end, j, :])
+        U_pad[end, j+1, :] = right_bound(squeeze(U[end, j, :], (1,2)))
     end
     for i in 1:size(U, 1)
-        U_pad[i+1, 1, :] = bottom_bound(U[i, 1, :])
+        U_pad[i+1, 1, :] = bottom_bound(squeeze(U[i, 1, :], (1,2)))
     end
     for j in 1:size(U, 2)
-        U_pad[1, j+1, :] = left_bound(U[1, j, :])
+        U_pad[1, j+1, :] = left_bound(squeeze(U[1, j, :], (1,2)))
     end
     U_pad[2:end-1, 2:end-1, :] = U
     return U_pad
