@@ -85,3 +85,26 @@ function ghost_wall(U::Array{Float64, 1}, n::Array{Float64, 1})
     mom_ref = U[2:3] - 2 * (U[2:3] ⋅ n) * n
     return [U[1], mom_ref[1], mom_ref[2], U[4]]
 end
+
+
+@doc """
+Pad a grid with boundary ghost cells.
+"""
+function pad_bounds(U::Array{Float64,3}, top_bound::Function,
+    right_bound::Function, bottom_bound::Function, left_bound::Function)
+    U_pad = zeros(size(U, 1) + 2, size(U, 2) + 2, 4)
+    for i in 1:size(U, 1)
+        U_pad[i+1, end, :] = top_bound(U[i, end, :])
+    end
+    for j in 1:size(U, 2)
+        U_pad[end, j+1, :] = right_bound(U[end, j, :])
+    end
+    for i in 1:size(U, 1)
+        U_pad[i+1, 1, :] = bottom_bound(U[i, 1, :])
+    end
+    for j in 1:size(U, 2)
+        U_pad[1, j+1, :] = left_bound(U[1, j, :])
+    end
+    U_pad[2:end-1, 2:end-1, :] = U
+    return U_pad
+end
