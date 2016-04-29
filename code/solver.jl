@@ -49,5 +49,3 @@ function MacCormack_step(U::Array{Float64,3},
     return U_c[2:end-1, 2:end-1, :]
 end
 
-
-                
