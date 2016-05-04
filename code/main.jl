@@ -18,6 +18,7 @@ include("fluid_eqns.jl")
 include("problem_spec.jl")
 include("solver.jl")
 include("stability.jl")
+include("vis.jl")
 
 # Gas properties
 gas = Gas(1.40, 1005)
@@ -53,7 +54,7 @@ end
 Δt = 0.1 * Δt_cfl(u, v, 340, Δx, Δy)
 
 # Grid size
-Nx = 10
+Nx = 100
 Ny = 10
 
 ps = ProblemSpec(gas, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
@@ -76,3 +77,7 @@ end
 toc()
 
 dump(U)
+
+
+plot_U(U)
+show()
