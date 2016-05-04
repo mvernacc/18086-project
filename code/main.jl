@@ -36,7 +36,7 @@ function top_bound(U)
 end
 # Right: blank outlet.
 function right_bound(U)
-    return U
+    return ghost_p(U, 101e3 - 50, gas)
 end
 # Bottom: solid wall.
 function bottom_bound(U)
@@ -50,7 +50,7 @@ end
 # Step sizes
 Δx = 1e-2
 Δy = 1e-2
-Δt = 0.5 * Δt_cfl(u, v, 340, Δx, Δy)
+Δt = 0.1 * Δt_cfl(u, v, 340, Δx, Δy)
 
 # Grid size
 Nx = 10
@@ -69,8 +69,10 @@ end
 
 dump(U)
 
-for it in 1:10
+tic()
+for it in 1:1000
     U = MacCormack_step(U, ps)
 end
+toc()
 
 dump(U)
