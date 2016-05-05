@@ -65,8 +65,8 @@ ps = ProblemSpec(gas, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
 U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
-        U[i, j, :] = U_inlet
-        U[i, j, 2] += 10 * i / Nx
+        U[i, j, 1] = 1
+        U[i, j, 4] = U_inlet[4]
     end
 end
 
