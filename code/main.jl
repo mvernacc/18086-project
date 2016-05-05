@@ -38,7 +38,7 @@ end
 # Right: blank outlet.
 function right_bound(U)
     # return ghost_p(U, 101e3 - 50, gas)
-    U
+    return U
 end
 # Bottom: solid wall.
 function bottom_bound(U)
