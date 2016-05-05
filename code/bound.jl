@@ -11,7 +11,9 @@ Spring 2016
 # See https://github.com/JuliaArchive/Markdown.jl/issues/25
 unused = 0
 
-include("fluid_eqns.jl")
+using CFD086
+
+export ghost_zerograd, ghost_p, ghost_pT, ghost_wall, pad_bounds
 
 # Ghost cell functions.
 # These functions return the ghost cells which are used to

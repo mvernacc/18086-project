@@ -6,11 +6,8 @@
 
 using Base.Test
 
-include("solver.jl")
-include("bound.jl")
-
-air = Gas(1.40, 1005)
-helium = Gas(5/3, 5190)
+include("cfd086.jl")
+using CFD086
 
 function test_unif_open()
     # A uniform grid with open bounds should remain uniform and constant.

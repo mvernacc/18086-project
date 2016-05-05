@@ -6,7 +6,8 @@
 
 using Base.Test
 
-include("bound.jl")
+include("cfd086.jl")
+using CFD086
 
 function test_pad_bounds()
     A = [1. 2. 3.;

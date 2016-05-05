@@ -6,10 +6,8 @@
 
 using Base.Test
 
-include("fluid_eqns.jl")
-
-air = Gas(1.40, 1005)
-helium = Gas(5/3, 5190)
+include("cfd086.jl")
+using CFD086
 
 function test_u2e()
     @test u2e([1, 0, 0, 2]) == 2

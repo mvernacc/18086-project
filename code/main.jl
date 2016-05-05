@@ -13,15 +13,8 @@ Spring 2016
 # See https://github.com/JuliaArchive/Markdown.jl/issues/25
 unused = 0
 
-include("bound.jl")
-include("fluid_eqns.jl")
-include("problem_spec.jl")
-include("solver.jl")
-include("stability.jl")
-include("vis.jl")
-
-# Gas properties
-air = Gas(1.40, 1005)
+include("cfd086.jl")
+using CFD086
 
 # Inlet conditions
 T = 300.
@@ -65,8 +58,11 @@ ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
 U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
-        U[i, j, 1] = 1
-        U[i, j, 4] = U_inlet[4]
+        if i < 50
+            U[i, j, :] = pTvel2u(101e3, 300, 0, 0, air)
+        else
+            U[i, j, :] = pTvel2u(101e3, 200, 0, 0, air)
+        end
     end
 end
 

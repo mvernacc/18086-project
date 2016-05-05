@@ -1,21 +1,11 @@
-"""
-Fluid dynamics equations.
+# Fluid dynamics equations.
+#
+# Matt Vernacchia
+# 18.086 Project
+# Spring 2016
 
-Matt Vernacchia
-18.086 Project
-Spring 2016
-"""
-
-# Properties of a perfect gas.
-type Gas
-    # Ratio of specific heats [units: none].
-    γ::Real
-    # Heat capacity at constant pressure [units: joule kilogram^-1 kelvin^-1]
-    c_p::Real
-end
-
-# Universal gas constant [units: joule kelvin^-1 mole^-1]
-const R_univ = 8.3144598
+export u2ρ, u2e, u2p, u2T, u2M, u2po,u2To, pTvel2u, pTM2u, poToM2u
+export F_euler, G_euler
 
 # Functions for unpacking / packing the vector of conservative variables.
 # Numerical methods for the Navier-Stokes equations typically solve for the

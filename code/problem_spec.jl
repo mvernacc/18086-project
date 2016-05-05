@@ -1,3 +1,7 @@
+using CFD086
+
+export ProblemSpec
+
 type ProblemSpec
     # The gas properties
     gas::Gas

@@ -10,6 +10,7 @@ Spring 2016
 # See https://github.com/JuliaArchive/Markdown.jl/issues/25
 unused = 0
 
+export Δt_cfl
 
 @doc """
 Get the time step CFL limit.

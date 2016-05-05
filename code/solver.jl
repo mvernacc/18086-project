@@ -11,9 +11,9 @@ Spring 2016
 # See https://github.com/JuliaArchive/Markdown.jl/issues/25
 unused = 0
 
-include("bound.jl")
-include("fluid_eqns.jl")
-include("problem_spec.jl")
+using CFD086
+
+export MacCormack_step
 
 function MacCormack_step(U::Array{Float64,3},
     ps::ProblemSpec)

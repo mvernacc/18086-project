@@ -6,6 +6,8 @@
 
 using PyPlot
 
+export plot_U
+
 function plot_U(U)
     titles = ["Density", "x Momentum", "y Momentum", "Energy"]
 
