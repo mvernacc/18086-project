@@ -21,14 +21,14 @@ include("stability.jl")
 include("vis.jl")
 
 # Gas properties
-gas = Gas(1.40, 1005)
+air = Gas(1.40, 1005)
 
 # Inlet conditions
 T = 300.
 p  = 101e3
-u = 200.
+u = 0.
 v = 0.
-U_inlet = pTvel2u(p, T, u, v, gas)
+U_inlet = pTvel2u(p, T, u, v, air)
 
 # Boundary conditions.
 # Top: solid wall.
@@ -37,7 +37,7 @@ function top_bound(U)
 end
 # Right: blank outlet.
 function right_bound(U)
-    # return ghost_p(U, 101e3 - 50, gas)
+    # return ghost_p(U, 101e3 - 50, air)
     return U
 end
 # Bottom: solid wall.
@@ -58,7 +58,7 @@ end
 Nx = 100
 Ny = 10
 
-ps = ProblemSpec(gas, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
+ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
     left_bound)
 
 # initial conditions
