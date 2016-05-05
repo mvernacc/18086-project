@@ -30,6 +30,9 @@ const R_univ = 8.3144598
 
 @doc """
 Get the density from the U vector.
+
+Returns:
+    desnity [units: kilogram meter^-3].
 """ ->
 function u2ρ(U)
     return U[1]
@@ -38,6 +41,9 @@ end
 
 @doc """
 Get the internal energy from the U vector.
+
+Returns:
+    specific internal energy [units: joule kilogram^-1].
 """ ->
 function u2e(U)
     u = U[2] / U[1]
@@ -49,6 +55,9 @@ end
 
 @doc """
 Get the static pressure from the U vector.
+
+Returns:
+    pressure [units: pascal].
 """ ->
 function u2p(U, gas::Gas)
     # Ideal gas law
@@ -60,6 +69,9 @@ end
 
 @doc """
 Get the absolute static temperature from the U vector.
+
+Returns:
+    temperature [units: kelvin].
 """ ->
 function u2T(U, gas::Gas)
     # Use the definition of heat capacity for a calorically perfect gas.
