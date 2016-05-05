@@ -31,11 +31,27 @@ function test_u2T()
     @test isapprox(u2T([1.205, 0, 0, 101e3 / 0.40], air), 293.15, atol=3)
     @test isapprox(u2T([0.166, 0, 0, 101e3 / (2/3)], helium), 293.15, atol=3)
     @test isapprox(u2T([0.166, 0.166*2, 0.166*2, 101e3 / (2/3) + 0.166/2*8], helium), 293.15, atol=3)
-
 end
-    
+
+function test_pTvel2u()
+    # Still air at room temp and pressure.
+    U = pTvel2u(101e3, 293.15, 0, 0, air)
+    @test isapprox(U[1], 1.205, atol=0.05)
+    @test U[2] == 0
+    @test U[3] == 0
+    @test U[4] ≈ 101e3 / 0.4
+
+    # Moving helium
+    U = pTvel2u(101e3, 293.15, 100, 10, helium)
+    @test isapprox(U[1], 0.166, atol=0.05)
+    @test isapprox(U[2], 16.6, rtol=1e-3)
+    @test isapprox(U[3], 1.66, rtol=1e-3)
+    @test isapprox(U[4], 101e3 / (2/3) + 0.166 / 2 * (100^2 + 10^2), rtol=1e-3)
+end
+
 
 test_u2e()
 test_u2p()
 test_u2T()
+test_pTvel2u()
 println("Passed all tests.")
