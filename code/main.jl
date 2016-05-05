@@ -26,7 +26,7 @@ gas = Gas(1.40, 1005)
 # Inlet conditions
 T = 300.
 p  = 101e3
-u = 10.
+u = 200.
 v = 0.
 U_inlet = pTvel2u(p, T, u, v, gas)
 
@@ -37,7 +37,8 @@ function top_bound(U)
 end
 # Right: blank outlet.
 function right_bound(U)
-    return ghost_p(U, 101e3 - 50, gas)
+    # return ghost_p(U, 101e3 - 50, gas)
+    U
 end
 # Bottom: solid wall.
 function bottom_bound(U)
@@ -65,6 +66,7 @@ U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
         U[i, j, :] = U_inlet
+        U[i, j, 2] += 10 * i / Nx
     end
 end
 
