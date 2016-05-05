@@ -45,4 +45,12 @@ function test_pad_bounds()
 
 end
 
+function test_ghost_wall()
+    @test ghost_wall([0, -1., -1., 0], [1., 0.]) ≈ [0, 1., -1., 0]
+    @test ghost_wall([0, 2., -1., 0], [0., 1.]) ≈ [0, 2., 1., 0]
+    @test ghost_wall([0, 100., 0., 0], [1/2^0.5, 1/2^0.5]) ≈ [0, 0., -100., 0]
+end
+
 test_pad_bounds()
+test_ghost_wall()
+println("Passed all tests.")
