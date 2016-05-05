@@ -19,7 +19,7 @@ using CFD086
 # Inlet conditions
 T = 300.
 p  = 101e3
-u = 0.
+u = 100.
 v = 0.
 U_inlet = pTvel2u(p, T, u, v, air)
 
@@ -59,9 +59,9 @@ U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
         if i < 50
-            U[i, j, :] = pTvel2u(101e3, 300, 0, 0, air)
+            U[i, j, :] = pTvel2u(101e3, 300, 100, 0, air)
         else
-            U[i, j, :] = pTvel2u(101e3, 200, 0, 0, air)
+            U[i, j, :] = pTvel2u(101e3, 200, 100, 0, air)
         end
     end
 end
