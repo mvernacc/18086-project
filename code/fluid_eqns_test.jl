@@ -49,9 +49,37 @@ function test_pTvel2u()
     @test isapprox(U[4], 101e3 / (2/3) + 0.166 / 2 * (100^2 + 10^2), rtol=1e-3)
 end
 
+function test_pTM2u()
+    # Moving helium
+    # speed of sound
+    a = ((5/3) * 101e3 / 0.166)^0.5
+    U = pTM2u(101e3, 293.15, 100 / a, 10 / a, helium)
+    @test isapprox(U[1], 0.166, atol=0.05)
+    @test isapprox(U[2], 16.6, rtol=1e-3)
+    @test isapprox(U[3], 1.66, rtol=1e-3)
+    @test isapprox(U[4], 101e3 / (2/3) + 0.166 / 2 * (100^2 + 10^2), rtol=1e-3)
+end
+
+function test_FG_euler()
+    srand(634)
+    U = rand(4)
+    p = (helium.γ - 1) * (U[4] - 0.5 * (U[2]^2 + U[3]^2) / U[1])
+    F = [U[2],
+        U[2]^2 / U[1] + p,
+        U[2] * U[3] / U[1],
+        U[2] * (U[4] + p) / U[1]]
+    G = [U[3],
+        U[2] * U[3] / U[1],
+        U[3]^2 / U[1] + p,
+        U[3] * (U[4] + p) / U[1]]
+    @test F_euler(U, helium) ≈ F
+    @test G_euler(U, helium) ≈ G
+end
 
 test_u2e()
 test_u2p()
 test_u2T()
 test_pTvel2u()
+test_pTM2u()
+test_FG_euler()
 println("Passed all tests.")
