@@ -58,8 +58,10 @@ ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
 U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
-        if i < 50
+        if i < 30
             U[i, j, :] = pTvel2u(101e3, 300, 100, 0, air)
+        elseif i < 70
+            U[i, j, :] = pTvel2u(101e3, 300 - 100*(i-30)/40, 100, 0, air)
         else
             U[i, j, :] = pTvel2u(101e3, 200, 100, 0, air)
         end
