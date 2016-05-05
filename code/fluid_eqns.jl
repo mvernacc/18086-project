@@ -4,7 +4,7 @@
 # 18.086 Project
 # Spring 2016
 
-export u2ρ, u2e, u2p, u2T, u2M, u2po,u2To, pTvel2u, pTM2u, poToM2u
+export u2ρ, u2e, u2p, u2T, u2a, u2M, u2po,u2To, pTvel2u, pTM2u, poToM2u
 export F_euler, G_euler
 
 # Functions for unpacking / packing the vector of conservative variables.
@@ -71,11 +71,24 @@ end
 
 
 @doc """
+Get the speed of sound from the U vector.
+
+Returns:
+    local speed of sound [units: meter second^-1].
+""" ->
+function u2a(U, gas::Gas)
+    # Speed of sound
+    a = (gas.γ * u2p(U, gas) / U[1])^0.5
+    return a
+end
+
+
+@doc """
 Get the Mach number from the U vector.
 """ ->
 function u2M(U, gas::Gas)
     # Speed of sound
-    a = (gas.γ * u2p(U, gas) / U[1])^0.5
+    a = u2a(U, gas)
     # Velocities    
     u = U[2] / U[1]
     v = U[3] / U[1]

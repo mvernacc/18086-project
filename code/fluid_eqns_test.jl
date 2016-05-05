@@ -31,6 +31,13 @@ function test_u2T()
     @test isapprox(u2T([0.166, 0.166*2, 0.166*2, 101e3 / (2/3) + 0.166/2*8], helium), 293.15, atol=3)
 end
 
+function test_u2a()
+    # Air at room conditions
+    @test isapprox(u2a([1.205, 0, 0, 101e3 / 0.40], air), 343.4, rtol=1e-2)
+    # Helium at room conditions
+    @test isapprox(u2a([0.166, 0, 0, 101e3 / (2/3)], helium), 1008, rtol=1e-2)
+end
+
 function test_pTvel2u()
     # Still air at room temp and pressure.
     U = pTvel2u(101e3, 293.15, 0, 0, air)
@@ -77,6 +84,7 @@ end
 test_u2e()
 test_u2p()
 test_u2T()
+test_u2a()
 test_pTvel2u()
 test_pTM2u()
 test_FG_euler()
