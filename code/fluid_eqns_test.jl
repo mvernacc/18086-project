@@ -30,6 +30,7 @@ end
 function test_u2T()
     @test isapprox(u2T([1.205, 0, 0, 101e3 / 0.40], air), 293.15, atol=3)
     @test isapprox(u2T([0.166, 0, 0, 101e3 / (2/3)], helium), 293.15, atol=3)
+    @test isapprox(u2T([0.166, 0.166*2, 0.166*2, 101e3 / (2/3) + 0.166/2*8], helium), 293.15, atol=3)
 
 end
     
