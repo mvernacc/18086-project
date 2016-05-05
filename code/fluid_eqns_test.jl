@@ -28,9 +28,13 @@ function test_u2p()
 end
 
 function test_u2T()
+    @test isapprox(u2T([1.205, 0, 0, 101e3 / 0.40], air), 293.15, atol=3)
+    @test isapprox(u2T([0.166, 0, 0, 101e3 / (2/3)], helium), 293.15, atol=3)
+
 end
     
 
 test_u2e()
 test_u2p()
+test_u2T()
 println("Passed all tests.")
