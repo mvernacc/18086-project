@@ -24,7 +24,7 @@ Get the density from the U vector.
 Returns:
     desnity [units: kilogram meter^-3].
 """ ->
-function u2ρ(U)
+@inline function u2ρ(U)
     return U[1]
 end
 
@@ -35,7 +35,7 @@ Get the internal energy from the U vector.
 Returns:
     specific internal energy [units: joule kilogram^-1].
 """ ->
-function u2e(U)
+@inline function u2e(U)
     u = U[2] / U[1]
     v = U[3] / U[1]
     e = U[4] / U[1] - 0.5 * (u^2 + v^2)
@@ -49,7 +49,7 @@ Get the static pressure from the U vector.
 Returns:
     pressure [units: pascal].
 """ ->
-function u2p(U, gas::Gas)
+@inline function u2p(U, gas::Gas)
     # Ideal gas law
     #   p = ρ (γ - 1) e
     # Source: https://en.wikipedia.org/wiki/Equation_of_state#Classical_ideal_gas_law
@@ -63,7 +63,7 @@ Get the absolute static temperature from the U vector.
 Returns:
     temperature [units: kelvin].
 """ ->
-function u2T(U, gas::Gas)
+@inline function u2T(U, gas::Gas)
     # Use the definition of heat capacity for a calorically perfect gas.
     #   e = c_v T
     return gas.γ / gas.c_p * u2e(U)
@@ -76,7 +76,7 @@ Get the velocity vector from the U vector.
 Returns:
     velocity 2-vector [units: meter second^-1].
 """ ->
-function u2vel(U)
+@inline function u2vel(U)
     return U[2:3] / U[1]
 end
 
@@ -87,7 +87,7 @@ Get the speed of sound from the U vector.
 Returns:
     local speed of sound [units: meter second^-1].
 """ ->
-function u2a(U, gas::Gas)
+@inline function u2a(U, gas::Gas)
     # Speed of sound
     a = (gas.γ * u2p(U, gas) / U[1])^0.5
     return a
@@ -97,7 +97,7 @@ end
 @doc """
 Get the Mach number from the U vector.
 """ ->
-function u2M(U, gas::Gas)
+@inline function u2M(U, gas::Gas)
     # Speed of sound
     a = u2a(U, gas)
     # Velocities    
@@ -110,7 +110,7 @@ end
 @doc """
 Get the stagnation pressure from the U vector.
 """ ->
-function u2po(U, gas::Gas)
+@inline function u2po(U, gas::Gas)
     # Source: https://en.wikipedia.org/wiki/Stagnation_pressure#Compressible_flow
     return u2p(U, gas) * (1 + (gas.γ - 1) / 2 * u2M(U, gas)^2)^(gas.γ / (gas.γ - 1))
 end
@@ -119,7 +119,7 @@ end
 @doc """
 Get the stagnation temperature from the U vector.
 """ ->
-function u2To(U, gas::Gas)
+@inline function u2To(U, gas::Gas)
     # Source: https://en.wikipedia.org/wiki/Stagnation_temperature
     return u2T(U, gas) * (1 + (gas.γ - 1) / 2 * u2M(U, gas)^2)
 end
