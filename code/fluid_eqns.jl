@@ -140,8 +140,6 @@ Arguments:
     gas: Gas properties
 """ ->
 function pTM2u(p, T, M_x, M_y, gas)
-    # Mach number
-    M = (M_x^2 + M_y^2)^0.5
     # Speed of sound
     R = gas.c_p * (1 - 1 / gas.γ)
     a = (gas.γ * R * T)^0.5
