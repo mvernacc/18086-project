@@ -4,7 +4,7 @@
 # 18.086 Project
 # Spring 2016
 
-export u2ρ, u2e, u2p, u2T, u2a, u2M, u2po,u2To, pTvel2u, pTM2u, poToM2u
+export u2ρ, u2e, u2p, u2T, u2vel, u2a, u2M, u2po,u2To, pTvel2u, pTM2u, poToM2u
 export F_euler, G_euler
 
 # Functions for unpacking / packing the vector of conservative variables.
@@ -67,6 +67,17 @@ function u2T(U, gas::Gas)
     # Use the definition of heat capacity for a calorically perfect gas.
     #   e = c_v T
     return gas.γ / gas.c_p * u2e(U)
+end
+
+
+@doc """
+Get the velocity vector from the U vector.
+
+Returns:
+    velocity 2-vector [units: meter second^-1].
+""" ->
+function u2vel(U)
+    return U[2:3] / U[1]
 end
 
 
