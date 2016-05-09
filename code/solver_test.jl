@@ -85,7 +85,12 @@ function test_unif_open_ad()
     # A uniform grid with open bounds should remain uniform and constant,
     # even with artifical diffusion.
     srand(24324)
-    U = 100 * rand() * ones(8, 8, 4)
+    U = ones(8, 8, 4)
+    U[:, :, 1] *= rand()
+    U[:, :, 2] *= 10 * rand()
+    U[:, :, 3] *= 10 * rand()
+    U[:, :, 4] *= 1e5 * rand()
+
     U_original = copy(U)
     ps = ProblemSpec(air, 1., 1., 1.,
         x -> x,
@@ -101,12 +106,16 @@ function test_unif_open_ad()
     end
 end
 
+
 function test_unif_wall_ad()
     # A uniform grid with walls should remain uniform and constant,
     # if the velocity is zero, even with artificial diffusion.
     srand(337)
-    U = 100 * rand() * ones(8, 8, 4)
-    U[:, :, 2:3] = 0
+    U = ones(8, 8, 4)
+    U[:, :, 1] *= rand()
+    U[:, :, 2] *= 0
+    U[:, :, 3] *= 0
+    U[:, :, 4] *= 1e5 * rand()
     U_original = copy(U)
 
     ps = ProblemSpec(air, 1., 1., 1.,

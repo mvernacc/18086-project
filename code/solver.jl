@@ -21,19 +21,29 @@ function MacCormack_step(U::Array{Float64,3},
     # Pad U with boundary ghost cells.
     U_pad = pad_bounds(U, ps.top_bound, ps.right_bound, ps.bottom_bound,
         ps.left_bound)
-    U_p = zeros(size(U_pad))
-    U_c = zeros(size(U_pad))
+    domain_i = 2:size(U,1)+1
+    domain_j = 2:size(U,2)+1
+    
 
     F = (U, i, j) -> F_euler(U[i, j, :], ps.gas)
     G = (U, i, j) -> G_euler(U[i, j, :], ps.gas)
     if use_ad
         F = (U, i, j) -> F_euler(U[i, j, :], ps.gas) - ad_F(U, i, j, ps.gas)
         G = (U, i, j) -> G_euler(U[i, j, :], ps.gas) - ad_G(U, i, j, ps.gas)
+        U_pad = pad_bounds(U,
+            ps.top_bound, ps.right_bound,
+            ps.bottom_bound, ps.left_bound,
+            level=4)
+        domain_i = 5:size(U,1) + 4
+        domain_j = 5:size(U,2) + 4
     end
 
+    U_p = zeros(size(U_pad))
+    U_c = zeros(size(U_pad))
+
     # Predictor
-    for i in 2:size(U,1)+1
-        for j in 2:size(U,2)+1
+    for i in domain_i
+        for j in domain_j
             U_p[i, j, :] = squeeze(U_pad[i, j, :], (1,2)) -
                 ps.Δt / ps.Δx * (F(U_pad, i+1, j)
                     - F(U_pad, i, j)) -
@@ -43,8 +53,8 @@ function MacCormack_step(U::Array{Float64,3},
     end
 
     # Corrector
-    for i in 2:size(U,1)+1
-        for j in 2:size(U,2)+1
+    for i in domain_i
+        for j in domain_j
             U_c[i, j, :] = 0.5 * (squeeze(U_pad[i, j, :] + U_p[i, j, :], (1,2)) -
                 ps.Δt / ps.Δx * (F(U_pad, i, j)
                     - F(U_pad, i-1, j)) -
@@ -54,7 +64,12 @@ function MacCormack_step(U::Array{Float64,3},
     end
 
     # Un-pad and return
-    return U_c[2:end-1, 2:end-1, :]
+    if use_ad
+        U_c = U_c[5:end-4, 5:end-4, :]
+    else
+        U_c = U_c[2:end-1, 2:end-1, :]
+    end
+    return U_c
 end
 
 
@@ -180,7 +195,7 @@ end
 Artificial diffusion in the x direction.
 """ ->
 function ad_F(U, i::Integer, j::Integer, gas::Gas)
-    return 0.5 * (ad_d_x(U, i+1, j, gas) - ad_d_x(U, i-1, j, gas))
+    return 0.5 * squeeze(ad_d_x(U, i+1, j, gas) - ad_d_x(U, i-1, j, gas), (1,2))
 end
 
 
@@ -188,5 +203,5 @@ end
 Artificial diffusion in the y direction.
 """ ->
 function ad_G(U, i::Integer, j::Integer, gas::Gas)
-    return 0.5 * (ad_d_y(U, i, j+1, gas) - ad_d_y(U, i, j-1, gas))
+    return 0.5 * squeeze(ad_d_y(U, i, j+1, gas) - ad_d_y(U, i, j-1, gas), (1,2))
 end
