@@ -60,8 +60,8 @@ for i in 1:Nx
     for j in 1:Ny
         if i < 30
             U[i, j, :] = pTvel2u(101e3, 300, 100, 0, air)
-        elseif i < 70
-            U[i, j, :] = pTvel2u(101e3, 300 - 100*(i-30)/40, 100, 0, air)
+        # elseif i < 70
+        #     U[i, j, :] = pTvel2u(101e3, 300 - 100*(i-30)/40, 100, 0, air)
         else
             U[i, j, :] = pTvel2u(101e3, 200, 100, 0, air)
         end
@@ -72,7 +72,7 @@ dump(U)
 
 tic()
 for it in 1:1000
-    U = MacCormack_step(U, ps)
+    U = MacCormack_step(U, ps, use_ad=true)
 end
 toc()
 
