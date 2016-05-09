@@ -38,11 +38,11 @@ function MacCormack_step(U::Array{Float64,3},
         domain_j = 5:size(U,2) + 4
     end
 
-    U_p = SharedArray(Float64, size(U_pad))
-    U_c = SharedArray(Float64, size(U_pad))
+    U_p = zeros(size(U_pad))
+    U_c = zeros(size(U_pad))
 
     # Predictor
-    @sync @parallel for i in domain_i
+    for i in domain_i
         for j in domain_j
             U_p[i, j, :] = squeeze(U_pad[i, j, :], (1,2)) -
                 ps.Δt / ps.Δx * (F(U_pad, i+1, j)
@@ -53,7 +53,7 @@ function MacCormack_step(U::Array{Float64,3},
     end
 
     # Corrector
-    @sync @parallel for i in domain_i
+    for i in domain_i
         for j in domain_j
             U_c[i, j, :] = 0.5 * (squeeze(U_pad[i, j, :] + U_p[i, j, :], (1,2)) -
                 ps.Δt / ps.Δx * (F(U_pad, i, j)
@@ -69,7 +69,7 @@ function MacCormack_step(U::Array{Float64,3},
     else
         U_c = U_c[2:end-1, 2:end-1, :]
     end
-    return sdata(U_c)
+    return U_c
 end
 
 
