@@ -52,14 +52,28 @@ function MacCormack_step(U::Array{Float64,3},
         end
     end
 
+    # Remove padding zeros from U_p and pad U_p with boundary condition ghost cells
+    if use_ad
+        U_p = U_p[5:end-4, 5:end-4, :]
+        U_p = pad_bounds(U_p,
+            ps.top_bound, ps.right_bound,
+            ps.bottom_bound, ps.left_bound,
+            level=4)
+    else
+        U_p = U_p[2:end-1, 2:end-1, :]
+        U_p = pad_bounds(U_p,
+            ps.top_bound, ps.right_bound,
+            ps.bottom_bound, ps.left_bound)
+    end
+
     # Corrector
     for i in domain_i
         for j in domain_j
             U_c[i, j, :] = 0.5 * (squeeze(U_pad[i, j, :] + U_p[i, j, :], (1,2)) -
-                ps.Δt / ps.Δx * (F(U_pad, i, j)
-                    - F(U_pad, i-1, j)) -
-                ps.Δt / ps.Δy * (G(U_pad, i, j)
-                    - G(U_pad, i, j-1)))
+                ps.Δt / ps.Δx * (F(U_p, i, j)
+                    - F(U_p, i-1, j)) -
+                ps.Δt / ps.Δy * (G(U_p, i, j)
+                    - G(U_p, i, j-1)))
         end
     end
 
