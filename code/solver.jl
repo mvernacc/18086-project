@@ -16,21 +16,29 @@ using CFD086
 export MacCormack_step
 
 function MacCormack_step(U::Array{Float64,3},
-    ps::ProblemSpec)
+    ps::ProblemSpec;
+    use_ad::Bool=false)
     # Pad U with boundary ghost cells.
     U_pad = pad_bounds(U, ps.top_bound, ps.right_bound, ps.bottom_bound,
         ps.left_bound)
     U_p = zeros(size(U_pad))
     U_c = zeros(size(U_pad))
 
+    F = (U, i, j) -> F_euler(U[i, j, :], ps.gas)
+    G = (U, i, j) -> G_euler(U[i, j, :], ps.gas)
+    if use_ad
+        F = (U, i, j) -> F_euler(U[i, j, :], ps.gas) - ad_F(U, i, j, ps.gas)
+        G = (U, i, j) -> G_euler(U[i, j, :], ps.gas) - ad_G(U, i, j, ps.gas)
+    end
+
     # Predictor
     for i in 2:size(U,1)+1
         for j in 2:size(U,2)+1
             U_p[i, j, :] = squeeze(U_pad[i, j, :], (1,2)) -
-                ps.Δt / ps.Δx * (F_euler(U_pad[i+1, j, :], ps.gas)
-                    - F_euler(U_pad[i, j, :], ps.gas)) -
-                ps.Δt / ps.Δy * (G_euler(U_pad[i, j+1, :], ps.gas)
-                    - G_euler(U_pad[i, j, :], ps.gas))
+                ps.Δt / ps.Δx * (F(U_pad, i+1, j)
+                    - F(U_pad, i, j)) -
+                ps.Δt / ps.Δy * (G(U_pad, i, j+1)
+                    - G(U_pad, i, j))
         end
     end
 
@@ -38,10 +46,10 @@ function MacCormack_step(U::Array{Float64,3},
     for i in 2:size(U,1)+1
         for j in 2:size(U,2)+1
             U_c[i, j, :] = 0.5 * (squeeze(U_pad[i, j, :] + U_p[i, j, :], (1,2)) -
-                ps.Δt / ps.Δx * (F_euler(U_pad[i, j, :], ps.gas)
-                    - F_euler(U_pad[i-1, j, :], ps.gas)) -
-                ps.Δt / ps.Δy * (G_euler(U_pad[i, j, :], ps.gas)
-                    - G_euler(U_pad[i, j-1, :], ps.gas)))
+                ps.Δt / ps.Δx * (F(U_pad, i, j)
+                    - F(U_pad, i-1, j)) -
+                ps.Δt / ps.Δy * (G(U_pad, i, j)
+                    - G(U_pad, i, j-1)))
         end
     end
 
@@ -49,3 +57,136 @@ function MacCormack_step(U::Array{Float64,3},
     return U_c[2:end-1, 2:end-1, :]
 end
 
+
+# Artificial Diffusion
+@doc """
+ϕ function for artificial diffusion, x direction.
+
+Eqn 9 in Lobao.
+""" ->
+function ad_ϕ_x(U, i::Integer, j::Integer)
+    u2 = zeros(4)
+    if i > 2
+        u2 = U[i-2, j]
+    end
+    return U[i+1, j] - 3 * U[i, j] + 3 * U[i-1, j] - u2
+end
+
+
+@doc """
+ϕ function for artificial diffusion, y direction.
+
+Eqn 9 in Lobao.
+""" ->
+function ad_ϕ_y(U, i::Integer, j::Integer)
+    u2 = zeros(4)
+    if j > 2
+        u2 = U[i, j-2]
+    end
+    return U[i, j+1] - 3 * U[i, j] + 3 * U[i, j-1] - u2
+end
+
+
+@doc """
+ν function for artificial diffusion, x direction.
+
+Eqn 10 in Lobao
+""" ->
+function ad_ν_x(U, i::Integer, j::Integer, gas::Gas)
+    return abs(u2p(U[i+1, j, :], gas) - 2 * u2p(U[i, j, :], gas) + u2p(U[i-1, j, :], gas)) /
+        (u2p(U[i+1, j, :], gas) + 2 * u2p(U[i, j, :], gas) + u2p(U[i-1, j, :], gas))
+end
+
+
+@doc """
+ν function for artificial diffusion, y direction.
+
+Eqn 10 in Lobao
+""" ->
+function ad_ν_y(U, i::Integer, j::Integer, gas::Gas)
+    return abs(u2p(U[i, j+1, :], gas) - 2 * u2p(U[i, j, :], gas) + u2p(U[i, j-1, :], gas)) /
+        (u2p(U[i, j+1, :], gas) + 2 * u2p(U[i, j, :], gas) + u2p(U[i, j-1, :], gas))
+end
+
+
+# Artificial diffusion constants
+const k2 = 1 / 4
+const k4 = 1 / 256
+
+
+@doc """
+ε2 function for artificial diffusion, x direction.
+
+Eqn 11 in Lobao
+""" ->
+function ad_ε2_x(U, i::Integer, j::Integer, gas::Gas)
+    return k2 * ad_ν_x(U, i-1, j, gas) * (norm(u2vel(U[i,j,:])) + u2a(U[i,j,:], gas))
+end
+
+
+@doc """
+ε2 function for artificial diffusion, y direction.
+
+Eqn 11 in Lobao
+""" ->
+function ad_ε2_y(U, i::Integer, j::Integer, gas::Gas)
+    return k2 * ad_ν_y(U, i, j-1, gas) * (norm(u2vel(U[i,j,:])) + u2a(U[i,j,:], gas))
+end
+
+
+@doc """
+ε4 function for artificial diffusion, x direction.
+
+Eqn 11 in Lobao
+""" ->
+function ad_ε4_x(U, i::Integer, j::Integer, gas::Gas)
+    return max(0, k4 - ad_ε2_x(U, i, j, gas)) * (norm(u2vel(U[i,j,:])) + u2a(U[i,j,:], gas))
+end
+
+
+@doc """
+ε4 function for artificial diffusion, y direction.
+
+Eqn 11 in Lobao
+""" ->
+function ad_ε4_y(U, i::Integer, j::Integer, gas::Gas)
+    return max(0, k4 - ad_ε2_y(U, i, j, gas)) * (norm(u2vel(U[i,j,:])) + u2a(U[i,j,:], gas))
+end
+
+
+@doc """
+d function for artificial diffusion, x direction.
+
+Eqn 8 in Lobao
+""" ->
+function ad_d_x(U, i::Integer, j::Integer, gas::Gas)
+    return ad_ε2_x(U, i, j, gas) * (U[i,j,:] - U[i-1,j,:]) -
+        ad_ε4_x(U, i, j, gas) * ad_ϕ_x(U,i,j)
+end
+
+
+@doc """
+d function for artificial diffusion, y direction.
+
+Eqn 8 in Lobao
+""" ->
+function ad_d_y(U, i::Integer, j::Integer, gas::Gas)
+    return ad_ε2_y(U, i, j, gas) * (U[i,j,:] - U[i,j-1,:]) -
+        ad_ε4_y(U, i, j, gas) * ad_ϕ_y(U, i, j)
+end
+
+
+@doc """
+Artificial diffusion in the x direction.
+""" ->
+function ad_F(U, i::Integer, j::Integer, gas::Gas)
+    return 0.5 * (ad_d_x(U, i+1, j, gas) - ad_d_x(U, i-1, j, gas))
+end
+
+
+@doc """
+Artificial diffusion in the y direction.
+""" ->
+function ad_G(U, i::Integer, j::Integer, gas::Gas)
+    return 0.5 * (ad_d_y(U, i, j+1, gas) - ad_d_y(U, i, j-1, gas))
+end

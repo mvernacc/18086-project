@@ -81,7 +81,52 @@ function test_stationary_T_discont()
 end
 
 
+function test_unif_open_ad()
+    # A uniform grid with open bounds should remain uniform and constant,
+    # even with artifical diffusion.
+    srand(24324)
+    U = 100 * rand() * ones(8, 8, 4)
+    U_original = copy(U)
+    ps = ProblemSpec(air, 1., 1., 1.,
+        x -> x,
+        x -> x,
+        x -> x,
+        x -> x)
+
+    @test U ≈ MacCormack_step(U, ps, use_ad=true)
+
+    for i in 1:100
+        U = MacCormack_step(U, ps, use_ad=true)
+        @test U ≈ U_original
+    end
+end
+
+function test_unif_wall_ad()
+    # A uniform grid with walls should remain uniform and constant,
+    # if the velocity is zero, even with artificial diffusion.
+    srand(337)
+    U = 100 * rand() * ones(8, 8, 4)
+    U[:, :, 2:3] = 0
+    U_original = copy(U)
+
+    ps = ProblemSpec(air, 1., 1., 1.,
+        x -> ghost_wall(x, [0, -1.]), # top
+        x -> ghost_wall(x, [-1., 0.]), # right
+        x -> ghost_wall(x, [0, 1.]), # bottom
+        x -> ghost_wall(x, [1.0, 0.])) # left
+
+    @test U ≈ MacCormack_step(U, ps, use_ad=true)
+
+    for i in 1:100
+        U = MacCormack_step(U, ps, use_ad=true)
+        @test U ≈ U_original
+    end
+end
+
+
 test_unif_open()
 test_unif_wall()
 test_stationary_T_discont()
+test_unif_open_ad()
+test_unif_wall_ad()
 println("Passed all tests.")
