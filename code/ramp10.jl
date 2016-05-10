@@ -46,14 +46,15 @@ function left_bound(U, i, j, ps)
     return U_inlet
 end
 
-# Step sizes
-Δx = 10 / 120
-Δy = 10 / 120
-Δt = 0.4 * Δt_cfl(U_inlet[2] / U_inlet[1], U_inlet[3] / U_inlet[1], 340, Δx, Δy)
-
 # Grid size
 Nx = 120
 Ny = 40
+
+# Step sizes
+Δx = 10 / Nx
+Δy = 10 / Nx
+Δt = 0.4 * Δt_cfl(U_inlet[2] / U_inlet[1], U_inlet[3] / U_inlet[1], 340, Δx, Δy)
+
 
 # Grid shape
 x_ramp = 1.0
@@ -95,7 +96,7 @@ end
 dump(U)
 
 tic()
-for it in 1:10
+for it in 1:300
     U = MacCormack_step(U, ps, use_ad=true)
 end
 toc()
