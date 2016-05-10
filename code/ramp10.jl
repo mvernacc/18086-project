@@ -16,6 +16,7 @@ unused = 0
 
 include("cfd086.jl")
 using CFD086
+using PyPlot
 
 # Inlet conditions
 T = 300.
@@ -55,6 +56,7 @@ Ny = 40
 Δy = 10 / Nx
 Δt = 0.4 * Δt_cfl(U_inlet[2] / U_inlet[1], U_inlet[3] / U_inlet[1], 340, Δx, Δy)
 
+println(Δt)
 
 # Grid shape
 x_ramp = 1.0
@@ -95,14 +97,21 @@ end
 
 dump(U)
 
+figure(figsize=(16,8))
+plot_U(U, ps)
+savefig("results/ramp10/t=00000.000us.svg")
+
 tic()
-for it in 1:300
+for it in 1:2200
     U = MacCormack_step(U, ps, use_ad=true)
+    if it % 10 == 0
+        clf()
+        plot_U(U, ps)
+        suptitle(@sprintf("10 deg ramp, M=1.5, t=%5.3fus.svg", it * Δt * 1e6))
+        savefig(@sprintf("results/ramp10/t=%5.3fus.svg", it * Δt * 1e6))
+    end
 end
 toc()
 
 dump(U)
-
-
-plot_U(U, ps)
 show()
