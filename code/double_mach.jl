@@ -49,13 +49,13 @@ function left_bound(U)
 end
 
 # Step sizes
-Δx = 1e-2
-Δy = 1e-2
+Δx = 0.5e-2
+Δy = 0.5e-2
 Δt = 0.1 * Δt_cfl(U_inlet[2] / U_inlet[1], U_inlet[3] / U_inlet[1], 340, Δx, Δy)
 
 # Grid size
-Nx = 50
-Ny = 12
+Nx = 100
+Ny = 25
 
 ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
     left_bound)
