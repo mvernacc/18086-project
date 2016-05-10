@@ -27,7 +27,9 @@ U_inlet = pTM2u(p, T, Mx, My, air)
 # Boundary conditions.
 # Top: solid wall.
 function top_bound(U, i, j, ps)
-    return ghost_wall(U, [0., -1.])
+    n = [ps.dy_dξ(i * ps.Δx, j * ps.Δy), -1]
+    n = n / norm(n)
+    return ghost_wall(U, n)
 end
 # Right: blank outlet.
 function right_bound(U, i, j, ps)
@@ -35,7 +37,9 @@ function right_bound(U, i, j, ps)
 end
 # Bottom: solid wall.
 function bottom_bound(U, i, j, ps)
-    return ghost_wall(U, [0., 1.])
+    n = [-ps.dy_dξ(i * ps.Δx, j * ps.Δy), 1]
+    n = n / norm(n)
+    return ghost_wall(U, n)
 end
 # Left: Full-state inlet.
 function left_bound(U, i, j, ps)
