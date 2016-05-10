@@ -161,8 +161,8 @@ end
 
 
 # Artificial diffusion constants
-const k2 = 1 / 2
-const k4 = 1 / 32
+const k2 = 1 / 4
+const k4 = 1 / 256
 
 
 @doc """
