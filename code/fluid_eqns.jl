@@ -55,7 +55,7 @@ Returns:
     # Source: https://en.wikipedia.org/wiki/Equation_of_state#Classical_ideal_gas_law
     p = U[1] * (gas.γ - 1) * u2e(U)
     if p <= 0
-        p = 1e-6
+        p = 1.0
     end
     return p
 end
