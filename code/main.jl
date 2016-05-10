@@ -79,5 +79,5 @@ toc()
 dump(U)
 
 
-plot_U(U)
+plot_U(U, ps)
 show()

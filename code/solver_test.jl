@@ -133,9 +133,44 @@ function test_unif_wall_ad()
 end
 
 
+function test_unif_open_curve()
+    # A uniform grid with open bounds should remain uniform and constant,
+    # even with a curved grid and ariticial diffusion.
+    srand(24324)
+    U = ones(8, 8, 4)
+    U[:, :, 1] *= rand()
+    U[:, :, 2] *= 10 * rand()
+    U[:, :, 3] *= 10 * rand()
+    U[:, :, 4] *= 1e5 * rand()
+
+    U_original = copy(U)
+    m = rand()
+    ps = ProblemSpec(air, 1., 1., 1.,
+        x -> x,
+        x -> x,
+        x -> x,
+        x -> x,
+        (ξ, η) -> ξ, # x(ξ, η)
+        (ξ, η) -> η + m * ξ, # y(ξ, η)
+        (ξ, η) -> 1, # dx_dξ
+        (ξ, η) -> 0, # dx_dη
+        (ξ, η) -> m, # dy_dξ
+        (ξ, η) -> 1, # dy_dη
+        )
+
+    @test U ≈ MacCormack_step(U, ps, use_ad=true)
+
+    for i in 1:100
+        U = MacCormack_step(U, ps, use_ad=true)
+        @test U ≈ U_original
+    end
+end
+
+
 test_unif_open()
 test_unif_wall()
 test_stationary_T_discont()
 test_unif_open_ad()
 test_unif_wall_ad()
+test_unif_open_curve()
 println("Passed all tests.")

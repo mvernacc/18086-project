@@ -18,6 +18,7 @@ export MacCormack_step
 function MacCormack_step(U::Array{Float64,3},
     ps::ProblemSpec;
     use_ad::Bool=false)
+
     # Pad U with boundary ghost cells.
     U_pad = pad_bounds(U, ps.top_bound, ps.right_bound, ps.bottom_bound,
         ps.left_bound)
@@ -26,11 +27,17 @@ function MacCormack_step(U::Array{Float64,3},
 
     min_ρ = 1e-2
     
-    F = (U, i, j) -> F_euler(U[i, j, :], ps.gas)
-    G = (U, i, j) -> G_euler(U[i, j, :], ps.gas)
+    F = (U, i, j) -> ps.dy_dη(i * ps.Δx, j * ps.Δy) * F_euler(U[i, j, :], ps.gas) - 
+        ps.dx_dη(i * ps.Δx, j * ps.Δy) * G_euler(U[i, j, :], ps.gas)
+    G = (U, i, j) ->  - ps.dy_dξ(i * ps.Δx, j * ps.Δy) * F_euler(U[i, j, :], ps.gas) +
+        ps.dx_dξ(i * ps.Δx, j * ps.Δy) * G_euler(U[i, j, :], ps.gas)
     if use_ad
-        F = (U, i, j) -> F_euler(U[i, j, :], ps.gas) - ad_F(U, i, j, ps.gas)
-        G = (U, i, j) -> G_euler(U[i, j, :], ps.gas) - ad_G(U, i, j, ps.gas)
+        F = (U, i, j) -> ps.dy_dη(i * ps.Δx, j * ps.Δy) * F_euler(U[i, j, :], ps.gas) - 
+            ps.dx_dη(i * ps.Δx, j * ps.Δy) * G_euler(U[i, j, :], ps.gas) -
+            ad_F(U, i, j, ps.gas) / J[i, j]
+        G = (U, i, j) -> - ps.dy_dξ(i * ps.Δx, j * ps.Δy) * F_euler(U[i, j, :], ps.gas) +
+            ps.dx_dξ(i * ps.Δx, j * ps.Δy) * G_euler(U[i, j, :], ps.gas) -
+            ad_G(U, i, j, ps.gas) / J[i, j]
         U_pad = pad_bounds(U,
             ps.top_bound, ps.right_bound,
             ps.bottom_bound, ps.left_bound,
@@ -39,6 +46,12 @@ function MacCormack_step(U::Array{Float64,3},
         domain_j = 5:size(U,2) + 4
     end
 
+    # Apply coordinate transform correction
+    J = ct_J(size(U_pad, 1), size(U_pad, 2), ps,
+        i_off=(size(U_pad, 1) -  size(U, 1)) / 2,
+        j_off=(size(U_pad, 2) -  size(U, 2)) / 2)
+    U_pad = J .* U_pad
+
     U_p = zeros(size(U_pad))
     U_c = zeros(size(U_pad))
 
@@ -46,9 +59,9 @@ function MacCormack_step(U::Array{Float64,3},
     for i in domain_i
         for j in domain_j
             U_p[i, j, :] = squeeze(U_pad[i, j, :], (1,2)) -
-                ps.Δt / ps.Δx * (F(U_pad, i+1, j)
+                ps.Δt / (ps.Δx * J[i, j]) * (F(U_pad, i+1, j)
                     - F(U_pad, i, j)) -
-                ps.Δt / ps.Δy * (G(U_pad, i, j+1)
+                ps.Δt / (ps.Δy * J[i, j]) * (G(U_pad, i, j+1)
                     - G(U_pad, i, j))
 
             # Correct negative density cells
@@ -78,9 +91,9 @@ function MacCormack_step(U::Array{Float64,3},
     for i in domain_i
         for j in domain_j
             U_c[i, j, :] = 0.5 * (squeeze(U_pad[i, j, :] + U_p[i, j, :], (1,2)) -
-                ps.Δt / ps.Δx * (F(U_p, i, j)
+                ps.Δt / (ps.Δx * J[i, j]) * (F(U_p, i, j)
                     - F(U_p, i-1, j)) -
-                ps.Δt / ps.Δy * (G(U_p, i, j)
+                ps.Δt / (ps.Δy * J[i, j]) * (G(U_p, i, j)
                     - G(U_p, i, j-1)))
 
             # Correct negative density cells
@@ -234,4 +247,20 @@ Artificial diffusion in the y direction.
 """ ->
 function ad_G(U, i::Integer, j::Integer, gas::Gas)
     return 0.5 * squeeze(ad_d_y(U, i, j+1, gas) - ad_d_y(U, i, j-1, gas), (1,2))
+end
+
+
+@doc """
+Coordinate transform correction factor, J
+""" ->
+function ct_J(nx, ny, ps::ProblemSpec; i_off=0, j_off=0)
+    J = zeros(nx, ny)
+    for i in 1:nx
+        for j in 1:ny
+            ξ = (i - i_off) * ps.Δx
+            η = (j - j_off) * ps.Δy
+            J[i, j] = ps.dx_dξ(ξ, η) * ps.dy_dη(ξ, η) - ps.dx_dη(ξ, η) * ps.dy_dξ(ξ, η)
+        end
+    end
+    return J
 end
