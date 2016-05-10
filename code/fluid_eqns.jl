@@ -53,7 +53,11 @@ Returns:
     # Ideal gas law
     #   p = ρ (γ - 1) e
     # Source: https://en.wikipedia.org/wiki/Equation_of_state#Classical_ideal_gas_law
-    return U[1] * (gas.γ - 1) * u2e(U)
+    p = U[1] * (gas.γ - 1) * u2e(U)
+    if p <= 0
+        p = 1e-6
+    end
+    return p
 end
 
 
