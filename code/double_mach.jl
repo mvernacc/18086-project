@@ -15,6 +15,7 @@ unused = 0
 
 include("cfd086.jl")
 using CFD086
+using PyPlot
 
 # Inlet conditions
 T = 300.
@@ -79,14 +80,20 @@ end
 
 dump(U)
 
+figure(figsize=(16,8))
+plot_U(U)
+savefig("results/double_mach/t=0s.svg")
+
 tic()
 for it in 1:200
     U = MacCormack_step(U, ps, use_ad=true)
+    if it % 10 == 0
+        clf()
+        plot_U(U)
+        savefig(@sprintf("results/double_mach/t=%3.3fus.svg", it * Δt * 1e6))
+    end
 end
 toc()
 
 dump(U)
-
-
-plot_U(U)
 show()
