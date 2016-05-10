@@ -23,8 +23,9 @@ function MacCormack_step(U::Array{Float64,3},
         ps.left_bound)
     domain_i = 2:size(U,1)+1
     domain_j = 2:size(U,2)+1
-    
 
+    min_ρ = 1e-2
+    
     F = (U, i, j) -> F_euler(U[i, j, :], ps.gas)
     G = (U, i, j) -> G_euler(U[i, j, :], ps.gas)
     if use_ad
@@ -49,6 +50,13 @@ function MacCormack_step(U::Array{Float64,3},
                     - F(U_pad, i, j)) -
                 ps.Δt / ps.Δy * (G(U_pad, i, j+1)
                     - G(U_pad, i, j))
+
+            # Correct negative density cells
+            if U_p[i, j, 1] <= 0
+                U_p[i, j, 2] *= min_ρ / U_p[i, j, 1]
+                U_p[i, j, 3] *= min_ρ / U_p[i, j, 1]
+                U_p[i, j, 1] = min_ρ
+            end
         end
     end
 
@@ -77,7 +85,6 @@ function MacCormack_step(U::Array{Float64,3},
 
             # Correct negative density cells
             if U_c[i, j, 1] <= 0
-                min_ρ = 1e-2
                 U_c[i, j, 2] *= min_ρ / U_c[i, j, 1]
                 U_c[i, j, 3] *= min_ρ / U_c[i, j, 1]
                 U_c[i, j, 1] = min_ρ
