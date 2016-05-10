@@ -55,7 +55,7 @@ end
 
 # Grid size
 Nx = 50
-Ny = 25
+Ny = 12
 
 ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
     left_bound)
