@@ -92,27 +92,30 @@ end
 @doc """
 Pad a grid with boundary ghost cells.
 """
-function pad_bounds(U::Array{Float64,3}, top_bound::Function,
-    right_bound::Function, bottom_bound::Function, left_bound::Function;
+function pad_bounds(U::Array{Float64,3}, ps::ProblemSpec;
     level=1)
 
     if level > 1
-        U = pad_bounds(U, top_bound, right_bound, bottom_bound, left_bound,
+        U = pad_bounds(U, ps,
                 level=level - 1)
     end
 
     U_pad = zeros(size(U, 1) + 2, size(U, 2) + 2, 4)
     for i in level:size(U, 1) - level + 1
-        U_pad[i+1, end, :] = top_bound(squeeze(U[i, end - 2 * level + 2, :], (1,2)))
+        U_pad[i+1, end, :] = ps.top_bound(squeeze(U[i, end - 2 * level + 2, :], (1,2)),
+            i, size(U,2) - 2 * level + 2, ps)
     end
     for j in level:size(U, 2) - level + 1
-        U_pad[end, j+1, :] = right_bound(squeeze(U[end - 2 * level + 2, j, :], (1,2)))
+        U_pad[end, j+1, :] = ps.right_bound(squeeze(U[end - 2 * level + 2, j, :], (1,2)),
+            size(U,1) - 2 * level + 2, j, ps)
     end
     for i in level:size(U, 1)  - level + 1
-        U_pad[i+1, 1, :] = bottom_bound(squeeze(U[i, 2 * level - 1, :], (1,2)))
+        U_pad[i+1, 1, :] = ps.bottom_bound(squeeze(U[i, 2 * level - 1, :], (1,2)),
+            i, 2 * level - 1, ps)
     end
     for j in level:size(U, 2) - level + 1
-        U_pad[1, j+1, :] = left_bound(squeeze(U[2 * level - 1, j, :], (1,2)))
+        U_pad[1, j+1, :] = ps.left_bound(squeeze(U[2 * level - 1, j, :], (1,2)),
+            2 * level - 1, j, ps)
     end
     U_pad[2:end-1, 2:end-1, :] = U
     return U_pad

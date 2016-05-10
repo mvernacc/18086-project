@@ -15,10 +15,10 @@ function test_unif_open()
     U = 100 * rand() * ones(8, 8, 4)
     U_original = copy(U)
     ps = ProblemSpec(air, 1., 1., 1.,
-        x -> x,
-        x -> x,
-        x -> x,
-        x -> x)
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x)
 
     @test U ≈ MacCormack_step(U, ps)
 
@@ -37,10 +37,10 @@ function test_unif_wall()
     U_original = copy(U)
 
     ps = ProblemSpec(air, 1., 1., 1.,
-        x -> ghost_wall(x, [0, -1.]), # top
-        x -> ghost_wall(x, [-1., 0.]), # right
-        x -> ghost_wall(x, [0, 1.]), # bottom
-        x -> ghost_wall(x, [1.0, 0.])) # left
+        (x, i, j, ps) -> ghost_wall(x, [0, -1.]), # top
+        (x, i, j, ps) -> ghost_wall(x, [-1., 0.]), # right
+        (x, i, j, ps) -> ghost_wall(x, [0, 1.]), # bottom
+        (x, i, j, ps) -> ghost_wall(x, [1.0, 0.])) # left
 
     @test U ≈ MacCormack_step(U, ps)
 
@@ -67,10 +67,10 @@ function test_stationary_T_discont()
     U_original = copy(U)
 
     ps = ProblemSpec(air, 1., 1., 1.,
-        x -> x,
-        x -> x,
-        x -> x,
-        x -> x)
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x)
 
     @test U ≈ MacCormack_step(U, ps)
 
@@ -93,10 +93,10 @@ function test_unif_open_ad()
 
     U_original = copy(U)
     ps = ProblemSpec(air, 1., 1., 1.,
-        x -> x,
-        x -> x,
-        x -> x,
-        x -> x)
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x)
 
     @test U ≈ MacCormack_step(U, ps, use_ad=true)
 
@@ -119,10 +119,10 @@ function test_unif_wall_ad()
     U_original = copy(U)
 
     ps = ProblemSpec(air, 1., 1., 1.,
-        x -> ghost_wall(x, [0, -1.]), # top
-        x -> ghost_wall(x, [-1., 0.]), # right
-        x -> ghost_wall(x, [0, 1.]), # bottom
-        x -> ghost_wall(x, [1.0, 0.])) # left
+        (x, i, j, ps) -> ghost_wall(x, [0, -1.]), # top
+        (x, i, j, ps) -> ghost_wall(x, [-1., 0.]), # right
+        (x, i, j, ps) -> ghost_wall(x, [0, 1.]), # bottom
+        (x, i, j, ps) -> ghost_wall(x, [1.0, 0.])) # left
 
     @test U ≈ MacCormack_step(U, ps, use_ad=true)
 
@@ -146,10 +146,10 @@ function test_unif_open_curve()
     U_original = copy(U)
     m = rand()
     ps = ProblemSpec(air, 1., 1., 1.,
-        x -> x,
-        x -> x,
-        x -> x,
-        x -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
+        (x, i, j, ps) -> x,
         (ξ, η) -> ξ, # x(ξ, η)
         (ξ, η) -> η + m * ξ, # y(ξ, η)
         (ξ, η) -> 1, # dx_dξ

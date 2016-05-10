@@ -7,9 +7,9 @@
 module CFD086
 include("gas.jl")
 include("fluid_eqns.jl")
+include("problem_spec.jl")
 include("bound.jl")
 include("stability.jl")
-include("problem_spec.jl")
 include("solver.jl")
 include("vis.jl")
 end

@@ -9,17 +9,20 @@ using Base.Test
 include("cfd086.jl")
 using CFD086
 
+ps = ProblemSpec(air, 1, 1, 1,
+    (x, i, j, ps) -> x + 0.1,
+    (x, i, j, ps) -> x + 0.2,
+    (x, i, j, ps) -> x + 0.3,
+    (x, i, j, ps) -> x + 0.4,
+    )
+
 function test_pad_bounds()
     A = [1. 2. 3.;
          4. 5. 6.;
          7. 8. 9.]
     U = cat(3, A, A, A, A)
 
-    U_pad = pad_bounds(U,
-        x -> x + 0.1,
-        x -> x + 0.2,
-        x -> x + 0.3,
-        x -> x + 0.4) 
+    U_pad = pad_bounds(U, ps) 
 
     # Dimensions
     @test size(U_pad) == (5,5,4)
@@ -51,11 +54,7 @@ function test_pad_bounds_level2()
          7. 8. 9.]
     U = cat(3, A, A, A, A)
 
-    U_pad = pad_bounds(U,
-        x -> x + 0.1,
-        x -> x + 0.2,
-        x -> x + 0.3,
-        x -> x + 0.4,
+    U_pad = pad_bounds(U, ps,
         level=2)
 
     dump(U_pad)

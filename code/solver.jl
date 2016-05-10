@@ -20,8 +20,7 @@ function MacCormack_step(U::Array{Float64,3},
     use_ad::Bool=false)
 
     # Pad U with boundary ghost cells.
-    U_pad = pad_bounds(U, ps.top_bound, ps.right_bound, ps.bottom_bound,
-        ps.left_bound)
+    U_pad = pad_bounds(U, ps)
     domain_i = 2:size(U,1)+1
     domain_j = 2:size(U,2)+1
 
@@ -38,9 +37,7 @@ function MacCormack_step(U::Array{Float64,3},
         G = (U, i, j) -> - ps.dy_dξ(i * ps.Δx, j * ps.Δy) * F_euler(U[i, j, :], ps.gas) +
             ps.dx_dξ(i * ps.Δx, j * ps.Δy) * G_euler(U[i, j, :], ps.gas) -
             ad_G(U, i, j, ps.gas) / J[i, j]
-        U_pad = pad_bounds(U,
-            ps.top_bound, ps.right_bound,
-            ps.bottom_bound, ps.left_bound,
+        U_pad = pad_bounds(U, ps,
             level=4)
         domain_i = 5:size(U,1) + 4
         domain_j = 5:size(U,2) + 4
@@ -76,15 +73,11 @@ function MacCormack_step(U::Array{Float64,3},
     # Remove padding zeros from U_p and pad U_p with boundary condition ghost cells
     if use_ad
         U_p = U_p[5:end-4, 5:end-4, :]
-        U_p = pad_bounds(U_p,
-            ps.top_bound, ps.right_bound,
-            ps.bottom_bound, ps.left_bound,
+        U_p = pad_bounds(U_p, ps,
             level=4)
     else
         U_p = U_p[2:end-1, 2:end-1, :]
-        U_p = pad_bounds(U_p,
-            ps.top_bound, ps.right_bound,
-            ps.bottom_bound, ps.left_bound)
+        U_p = pad_bounds(U_p, ps)
     end
 
     # Corrector
