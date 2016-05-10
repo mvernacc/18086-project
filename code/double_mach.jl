@@ -23,10 +23,17 @@ M_x = 10 * cos(deg2rad(30))
 M_y = - 10 * sin(deg2rad(30))
 U_inlet = pTM2u(p, T, M_x, M_y, air)
 
+U_outlet = pTM2u(p / 4, T, 0, 0, air)
+
 # Boundary conditions.
 # Top: blank.
 function top_bound(U)
-    return U
+    u = U[2] / U[1]
+    if u > 1000
+        return U_inlet
+    else
+        return U_outlet
+    end
 end
 # Right: blank outlet.
 function right_bound(U)
@@ -58,7 +65,7 @@ U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
         if j * Δy < 3^0.5 * (i-2) * Δx
-            U[i, j, :] = pTM2u(p / 4, T, 0, 0, air)
+            U[i, j, :] = U_outlet
         elseif isapprox(j * Δy, 3^0.5 * (i-2) * Δx, atol=2*Δy)
             U[i, j, :] = pTM2u(p, T,
                 5 * cos(deg2rad(30)),
@@ -73,7 +80,7 @@ end
 dump(U)
 
 tic()
-for it in 1:22
+for it in 1:100
     U = MacCormack_step(U, ps, use_ad=true)
 end
 toc()
