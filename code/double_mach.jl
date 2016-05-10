@@ -80,7 +80,7 @@ end
 dump(U)
 
 tic()
-for it in 1:100
+for it in 1:200
     U = MacCormack_step(U, ps, use_ad=true)
 end
 toc()
