@@ -74,15 +74,24 @@ function MacCormack_step(U::Array{Float64,3},
                     - F(U_p, i-1, j)) -
                 ps.Δt / ps.Δy * (G(U_p, i, j)
                     - G(U_p, i, j-1)))
+
+            # Correct negative density cells
+            if U_c[i, j, 1] <= 0
+                min_ρ = 1e-2
+                U_c[i, j, 2] *= min_ρ / U_c[i, j, 1]
+                U_c[i, j, 3] *= min_ρ / U_c[i, j, 1]
+                U_c[i, j, 1] = min_ρ
+            end
         end
     end
 
-    # Un-pad and return
+    # Un-pad
     if use_ad
         U_c = U_c[5:end-4, 5:end-4, :]
     else
         U_c = U_c[2:end-1, 2:end-1, :]
     end
+
     return U_c
 end
 
