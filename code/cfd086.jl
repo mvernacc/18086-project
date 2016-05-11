@@ -12,4 +12,5 @@ include("bound.jl")
 include("stability.jl")
 include("solver.jl")
 include("vis.jl")
+include("rao.jl")
 end

@@ -4,8 +4,9 @@
 # 18.086 Project
 # Spring 2016
 
-using PyPlot
-function find_parameters(r_c, r_t, θ_1, θ_2, r_e)
+export nozzle_parameters, nozzle_contour, nozzle_contour_derivative
+
+function nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
     # Suggested r_1 and r_2 values from Huzel and Huang
     r_1 = 1.5 * r_t
     r_2 = 0.4 * r_t
@@ -32,7 +33,7 @@ function find_parameters(r_c, r_t, θ_1, θ_2, r_e)
 end
 
 
-function contour(x, parameters)
+function nozzle_contour(x, parameters)
     r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d_1, d_2, d_3 = parameters
     if x < x_c
         # Convergent line section
@@ -51,7 +52,7 @@ function contour(x, parameters)
     end
 end
 
-function contour_derivative(x, parameters)
+function nozzle_contour_derivative(x, parameters)
     r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d_1, d_2, d_3 = parameters
     if x < x_c
         # Convergent line section
@@ -69,18 +70,4 @@ function contour_derivative(x, parameters)
         return 0
     end
 end
-
-p = find_parameters(4, 1, deg2rad(30), deg2rad(25), 8)
-dump(p)
-println(p)
-x = collect(0:1e-2:p[10])
-y = [contour(x1, p) for x1 in x]
-dydx = [contour_derivative(x1, p) for x1 in x]
-dump(x)
-dump(y)
-subplot(2,1,1)
-plot(x, y)
-subplot(2,1,2)
-plot(x, dydx, marker="x")
-show()
 
