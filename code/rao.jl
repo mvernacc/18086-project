@@ -7,9 +7,13 @@
 export nozzle_parameters, nozzle_contour, nozzle_contour_derivative
 
 function nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
-    # Suggested r_1 and r_2 values from Huzel and Huang
-    r_1 = 1.5 * r_t
-    r_2 = 0.4 * r_t
+    # Suggested r_1 and r_2 values from Huzel and Huang are
+    # r_1 = 1.5 * r_t
+    # r_2 = 0.4 * r_t
+    # I increase these a bit; the sharp curvature gives the solver
+    # problems.
+    r_1 = 3.0 * r_t
+    r_2 = 1.0 * r_t
     # Convergent straight section parameters
     c_1 = -tan(θ_1)
     c_2 = r_c
