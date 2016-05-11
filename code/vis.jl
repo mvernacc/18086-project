@@ -10,7 +10,7 @@ using CFD086
 export plot_U, plot_pTM
 
 function plot_U(U, ps::ProblemSpec)
-    titles = ["Density", "x Momentum", "y Momentum", "Energy"]
+    titles = ["Density [kg m^-3]", "x Momentum [kg m^-2 s^-1]", "y Momentum [kg m^-2 s^-1]", "Energy [Pa]"]
 
     X = zeros(size(U,1), size(U,2))
     Y = zeros(size(U,1), size(U,2))
