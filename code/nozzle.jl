@@ -18,12 +18,17 @@ using PyPlot
 # Inlet conditions
 T_c = 2000.
 p_c  = 5e6
-Mx = 0.5
+Mx = 0.3
 My = 0
 U_inlet = pTM2u(p_c, T_c, Mx, My, air)
 
 # Exit pressue [units: pascal]
 p_e = 101e3
+# Exit mach number [units: none]
+# guess using fig 1-12 of Huzel and Huang
+M_e = 3.5
+# Exit temperature [units: Kelvin]
+T_e = T_c * (p_e / p_c)^((air.γ - 1) / air.γ)
 
 # Boundary conditions.
 # Top: solid wall.
@@ -53,7 +58,7 @@ Ny = 40
 
 # Nozzle shape parameters
 # Chamber radius [units: meter]
-r_c = 1.0
+r_c = 0.5
 # Throat radius [units: meter]
 r_t = 0.25
 # Exit radius [units: meter]
@@ -101,7 +106,11 @@ ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
 U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
-        U[i, j, :] = pTM2u(p_c + (p_e - p_c) * i / Nx,  T_c, Mx, My, air)
+        U[i, j, :] = pTM2u(p_c + (p_e - p_c) * i / Nx,
+            T_c + (T_e - T_c) * i / Nx,
+            Mx,
+            My,
+            air)
     end
 end
 
@@ -112,7 +121,7 @@ figure(figsize=(16,8))
 # savefig("results/nozzle/t=00000.000us.svg")
 
 tic()
-for it in 1:50
+for it in 1:100
     U = MacCormack_step(U, ps, use_ad=true)
     # if it % 10 == 0
     #     clf()
