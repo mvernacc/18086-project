@@ -45,11 +45,10 @@ Returns:
     4-vector of conservative variables, at the ghost cell on the outside of the boundary.
 """ ->
 function ghost_p(U::Array{Float64, 1}, p_bound::Float64, gas::Gas)
-    e = u2e(U)
-    ρ_bound = p_bound / (gas.γ - 1) / e
+    e_bound = p_bound / U[1] / (gas.γ - 1)
     u = U[2] / U[1]
     v = U[3] / U[1]
-    return [ρ_bound, ρ_bound * u, ρ_bound * v, ρ_bound * (e + (u^2 + v^2) / 2)]
+    return [U[1], U[2], U[3], U[1] * (e + (u^2 + v^2) / 2)]
 end
 
 
