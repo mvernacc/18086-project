@@ -58,6 +58,8 @@ Nx = 200
 Ny = 20
 
 # Nozzle shape parameters
+# Chamber straight section length [units: meter]
+x_s = 0.5
 # Chamber radius [units: meter]
 r_c = 0.5
 # Throat radius [units: meter]
@@ -69,11 +71,11 @@ r_e = 2
 # Divergent circle angle [units: radian]
 θ_2 = deg2rad(15)
 # Find the nozzle shape parameters
-nozzle_shape_param = nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
+nozzle_shape_param = nozzle_parameters(x_s, r_c, r_t, θ_1, θ_2, r_e)
 # Nozzle length [units: meter]
-x_e = nozzle_shape_param[10]
+x_e = nozzle_shape_param[11]
 # Nozzle throat position [units: meter]
-x_t = nozzle_shape_param[8]
+x_t = nozzle_shape_param[9]
 
 # Step sizes
 Δx = x_e / Nx

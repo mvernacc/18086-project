@@ -6,7 +6,7 @@
 
 export nozzle_parameters, nozzle_contour, nozzle_contour_derivative
 
-function nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
+function nozzle_parameters(x_s, r_c, r_t, θ_1, θ_2, r_e)
     # Suggested r_1 and r_2 values from Huzel and Huang are
     # r_1 = 1.5 * r_t
     # r_2 = 0.4 * r_t
@@ -16,8 +16,8 @@ function nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
     r_2 = 1.0 * r_t
     # Convergent straight section parameters
     c_1 = -tan(θ_1)
-    c_2 = r_c
-    x_c = - 1 / c_1 * (r_c - r_t - r_1*(1-cos(θ_1)))
+    c_2 = r_c - c_1 * x_s
+    x_c = - 1 / c_1 * (r_c - r_t - r_1*(1-cos(θ_1))) + x_s
     # Throat location
     x_t = x_c + r_1 * sin(θ_1)
     # Supersonic circle-parabola joint location
@@ -33,13 +33,16 @@ function nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
          x_2^2 x_2 1]
     b = [r_e, tan(θ_2), r_t + (1 - cos(θ_2)) * r_2]
     d = A\b
-    return (r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d[1], d[2], d[3])
+    return (x_s, r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d[1], d[2], d[3])
 end
 
 
 function nozzle_contour(x, parameters)
-    r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d_1, d_2, d_3 = parameters
-    if x < x_c
+    x_s, r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d_1, d_2, d_3 = parameters
+    if x < x_s
+        # Inital straight section
+        return r_c
+    elseif x < x_c
         # Convergent line section
         return c_1 * x + c_2
     elseif x < x_t
@@ -55,8 +58,11 @@ function nozzle_contour(x, parameters)
 end
 
 function nozzle_contour_derivative(x, parameters)
-    r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d_1, d_2, d_3 = parameters
-    if x < x_c
+    x_s, r_c, r_t, r_1, r_2, c_1, c_2, x_c, x_t, x_2, x_e, d_1, d_2, d_3 = parameters
+    if x < x_s
+        # Inital straight section
+        return 0
+    elseif x < x_c
         # Convergent line section
         return c_1
     elseif x < x_t
