@@ -1,0 +1,6 @@
+!/bin/sh
+
+for file in *.svg
+do
+     /usr/bin/inkscape -z -f "${file}" -w 1200 -e "${file%svg}png"
+done
