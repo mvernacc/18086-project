@@ -18,15 +18,14 @@ using PyPlot
 # Inlet conditions
 T_c = 2000.
 p_c  = 5e6
-Mx = 0.3
-My = 0
-U_inlet = pTM2u(p_c, T_c, Mx, My, air)
+M_in = 0.3
+U_inlet = pTM2u(p_c, T_c, M_in, 0, air)
 
 # Exit pressue [units: pascal]
-p_e = 101e3
+p_e = 5e6 / 35
 # Exit mach number [units: none]
 # guess using fig 1-12 of Huzel and Huang
-M_e = 3.5
+M_e = 3.0
 # Exit temperature [units: Kelvin]
 T_e = T_c * (p_e / p_c)^((air.γ - 1) / air.γ)
 
@@ -50,11 +49,20 @@ function bottom_bound(U, i, j, ps)
 end
 # Left: Pressure and temperature inlet.
 function left_bound(U, i, j, ps)
-    return ghost_pT(U, p_c, T_c, ps.gas)
+    # return ghost_pT(U, p_c, T_c, ps.gas)
+    # return U_inlet
+    n = [1, ps.dy_dξ(0, j * ps.Δy)]
+    n = n / norm(n)
+    return pTM2u(
+        p_c,
+        T_c,
+        M_in * n[1],
+        M_in * n[2],
+        air)
 end
 
 # Grid size
-Nx = 200
+Nx = 100
 Ny = 20
 
 # Nozzle shape parameters
@@ -65,7 +73,7 @@ r_c = 0.5
 # Throat radius [units: meter]
 r_t = 0.25
 # Exit radius [units: meter]
-r_e = 2
+r_e = 1
 # Convergent angle [units: radian]
 θ_1 = deg2rad(15)
 # Divergent circle angle [units: radian]
@@ -124,11 +132,13 @@ ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
 U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
+        n = [1, ps.dy_dξ(i * ps.Δx, j * ps.Δy)]
+        n = n / norm(n)
         U[i, j, :] = pTM2u(
             p_c + (p_e - p_c) * i / Nx,
             T_c + (T_e - T_c) * i / Nx,
-            Mx,
-            My,
+            M_in * n[1],
+            M_in * n[2],
             air)
     end
 end
