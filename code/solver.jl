@@ -33,10 +33,10 @@ function MacCormack_step(U::Array{Float64,3},
     if use_ad
         F = (U, i, j) -> ps.dy_dη(i * ps.Δx, j * ps.Δy) * F_euler(U[i, j, :], ps.gas) - 
             ps.dx_dη(i * ps.Δx, j * ps.Δy) * G_euler(U[i, j, :], ps.gas) -
-            ad_F(U, i, j, ps.gas) / J[i, j]
+            ad_F(U, i, j, ps.gas)
         G = (U, i, j) -> - ps.dy_dξ(i * ps.Δx, j * ps.Δy) * F_euler(U[i, j, :], ps.gas) +
             ps.dx_dξ(i * ps.Δx, j * ps.Δy) * G_euler(U[i, j, :], ps.gas) -
-            ad_G(U, i, j, ps.gas) / J[i, j]
+            ad_G(U, i, j, ps.gas)
         U_pad = pad_bounds(U, ps,
             level=4)
         domain_i = 5:size(U,1) + 4
