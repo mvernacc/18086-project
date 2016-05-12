@@ -64,13 +64,15 @@ r_t = 0.25
 # Exit radius [units: meter]
 r_e = 2
 # Convergent angle [units: radian]
-θ_1 = deg2rad(30)
+θ_1 = deg2rad(15)
 # Divergent circle angle [units: radian]
-θ_2 = deg2rad(25)
+θ_2 = deg2rad(15)
 # Find the nozzle shape parameters
 nozzle_shape_param = nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
 # Nozzle length [units: meter]
 x_e = nozzle_shape_param[10]
+# Nozzle throat position [units: meter]
+x_t = nozzle_shape_param[8]
 
 # Step sizes
 Δx = x_e / Nx
@@ -80,16 +82,28 @@ x_e = nozzle_shape_param[10]
 println(Δt)
 
 # Grid shape
+# function x(ξ, η)
+#     return -3 / (4 * x_t^2) * ξ^3 +
+#         3 / (4 * x_t) * ξ^2 +
+#         ξ
+# end
+
+# function dx_dξ(ξ, η)
+#     return -9 / (4 * x_t^2) * ξ^2
+#         6 / (4 * x_t) * ξ +
+#         1
+# end
+
 function y(ξ, η)
-    return (η - Δy) * nozzle_contour(ξ, nozzle_shape_param)
+    return (η - Δy) * nozzle_contour(ξ - Δx, nozzle_shape_param)
 end
 
 function dy_dξ(ξ, η)
-    return (η - Δy) * nozzle_contour_derivative(ξ, nozzle_shape_param)
+    return (η - Δy) * nozzle_contour_derivative(ξ - Δx, nozzle_shape_param)
 end
 
 function dy_dη(ξ, η)
-    return nozzle_contour(ξ, nozzle_shape_param)
+    return nozzle_contour(ξ - Δx, nozzle_shape_param)
 end
 
 ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
@@ -99,14 +113,16 @@ ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
     (ξ, η) -> 1, # dx_dξ
     (ξ, η) -> 0, # dx_dη
     dy_dξ, # dy_dξ
-    (ξ, η) -> 1, # dy_dη
+    dy_dη, # dy_dη
+    # (ξ, η) -> 1
     )
 
 # initial conditions
 U = zeros(Nx, Ny, 4)
 for i in 1:Nx
     for j in 1:Ny
-        U[i, j, :] = pTM2u(p_c + (p_e - p_c) * i / Nx,
+        U[i, j, :] = pTM2u(
+            p_c + (p_e - p_c) * i / Nx,
             T_c + (T_e - T_c) * i / Nx,
             Mx,
             My,
@@ -121,7 +137,7 @@ figure(figsize=(16,8))
 # savefig("results/nozzle/t=00000.000us.svg")
 
 tic()
-for it in 1:100
+for it in 1:10
     U = MacCormack_step(U, ps, use_ad=true)
     # if it % 10 == 0
     #     clf()
