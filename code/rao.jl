@@ -48,11 +48,9 @@ function nozzle_contour(x, parameters)
     elseif x < x_2
         # Divergent circle section
         return r_2 + r_t - (r_2^2 - (x - x_t)^2)^0.5
-    elseif x < x_e
+    else
         # Divergent parabolic section
         return d_1 * x^2 + d_2 * x + d_3
-    else
-        return 0
     end
 end
 
@@ -67,11 +65,9 @@ function nozzle_contour_derivative(x, parameters)
     elseif x < x_2
         # Divergent circle section
         return (x - x_t) / (r_2^2 - (x - x_t)^2)^0.5
-    elseif x < x_e
+    else
         # Divergent parabolic section
         return d_1 * x + d_2
-    else
-        return 0
     end
 end
 
