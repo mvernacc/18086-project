@@ -23,8 +23,8 @@ function nozzle_parameters(r_c, r_t, θ_1, θ_2, r_e)
     # Supersonic circle-parabola joint location
     x_2 = x_t + r_2 * sin(θ_2)
     # Divergent section length
-    # Equivalent to length for a 15-degree conical nozzle
-    L_e = 1 / tan(deg2rad(15)) * (r_e - r_t)
+    # Equivalent to length for a 10-degree conical nozzle
+    L_e = 1 / tan(deg2rad(10)) * (r_e - r_t)
     # Nozzle length
     x_e = x_t + L_e
     # Supersonic parabola
