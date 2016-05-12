@@ -56,9 +56,9 @@ function MacCormack_step(U::Array{Float64,3},
     for i in domain_i
         for j in domain_j
             U_p[i, j, :] = squeeze(U_pad[i, j, :], (1,2)) -
-                ps.Δt / (ps.Δx * J[i, j]) * (F(U_pad, i+1, j)
+                ps.Δt / (ps.Δx) * (F(U_pad, i+1, j)
                     - F(U_pad, i, j)) -
-                ps.Δt / (ps.Δy * J[i, j]) * (G(U_pad, i, j+1)
+                ps.Δt / (ps.Δy) * (G(U_pad, i, j+1)
                     - G(U_pad, i, j))
 
             # Correct negative density cells
@@ -83,11 +83,11 @@ function MacCormack_step(U::Array{Float64,3},
     # Corrector
     for i in domain_i
         for j in domain_j
-            U_c[i, j, :] = 0.5 * (squeeze(U_pad[i, j, :] + U_p[i, j, :], (1,2)) -
-                ps.Δt / (ps.Δx * J[i, j]) * (F(U_p, i, j)
+            U_c[i, j, :] = 0.5 * squeeze(U_pad[i, j, :] + U_p[i, j, :], (1,2)) -
+                ps.Δt / (ps.Δx) * (F(U_p, i, j)
                     - F(U_p, i-1, j)) -
-                ps.Δt / (ps.Δy * J[i, j]) * (G(U_p, i, j)
-                    - G(U_p, i, j-1)))
+                ps.Δt / (ps.Δy) * (G(U_p, i, j)
+                    - G(U_p, i, j-1))
 
             # Correct negative density cells
             if U_c[i, j, 1] <= 0
@@ -97,6 +97,9 @@ function MacCormack_step(U::Array{Float64,3},
             end
         end
     end
+
+    # Undo coordinate transform
+    U_c = U_c ./ J
 
     # Un-pad
     if use_ad
@@ -162,7 +165,7 @@ end
 
 # Artificial diffusion constants
 const k2 = 1 / 4
-const k4 = 1 / 64
+const k4 = 1 / 32
 
 
 @doc """
