@@ -39,7 +39,8 @@ function top_bound(U, i, j, ps)
 end
 # Right: pressure.
 function right_bound(U, i, j, ps)
-    return ghost_p(U, p_e, ps.gas)
+    return U
+    # return ghost_p(U, p_e, ps.gas)
 end
 # Bottom: solid wall.
 function bottom_bound(U, i, j, ps)
@@ -47,14 +48,14 @@ function bottom_bound(U, i, j, ps)
     n = n / norm(n)
     return ghost_wall(U, n)
 end
-# Left: Full-state inlet.
+# Left: Pressure and temperature inlet.
 function left_bound(U, i, j, ps)
-    return U_inlet
+    return ghost_pT(U, p_c, T_c, ps.gas)
 end
 
 # Grid size
-Nx = 120
-Ny = 40
+Nx = 200
+Ny = 20
 
 # Nozzle shape parameters
 # Chamber radius [units: meter]
