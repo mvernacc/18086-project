@@ -9,7 +9,7 @@ include("cfd086.jl")
 using CFD086
 using PyPlot
 
-p = nozzle_parameters(4, 1, deg2rad(30), deg2rad(25), 8)
+p = nozzle_parameters(0.5, 0.25, deg2rad(15), deg2rad(15), 2)
 dump(p)
 println(p)
 x = collect(0:1e-2:p[10])
