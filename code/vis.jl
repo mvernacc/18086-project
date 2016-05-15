@@ -30,6 +30,7 @@ function plot_U(U, ps::ProblemSpec)
         ylabel("y [meter]")
         colorbar()
     end
+    tight_layout()
 end
 
 function plot_pTM(U, ps::ProblemSpec)
@@ -63,4 +64,5 @@ function plot_pTM(U, ps::ProblemSpec)
         ylabel("y [meter]")
         colorbar()
     end
+    tight_layout()
 end
