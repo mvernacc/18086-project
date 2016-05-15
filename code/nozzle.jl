@@ -22,10 +22,10 @@ M_in = 0.3
 U_inlet = poToM2u(p_c, T_c, M_in, 0, air)
 
 # Exit pressue [units: pascal]
-p_e = 5e6 / 35
+p_e = 5e6 / 21
 # Exit mach number [units: none]
 # guess using fig 1-12 of Huzel and Huang
-M_e = 3.0
+M_e = 2.5
 # Exit temperature [units: Kelvin]
 T_e = T_c * (p_e / p_c)^((air.γ - 1) / air.γ)
 
@@ -63,28 +63,30 @@ function left_bound(U, i, j, ps)
 end
 
 # Grid size
-Nx = 100
-Ny = 20
+Nx = 50
+Ny = 10
 
 # Nozzle shape parameters
-# Chamber straight section length [units: meter]
-x_s = 0.5
-# Chamber radius [units: meter]
-r_c = 0.5
-# Throat radius [units: meter]
-r_t = 0.25
-# Exit radius [units: meter]
-r_e = 1
-# Convergent angle [units: radian]
-θ_1 = deg2rad(15)
-# Divergent circle angle [units: radian]
-θ_2 = deg2rad(15)
-# Find the nozzle shape parameters
-nozzle_shape_param = nozzle_parameters(x_s, r_c, r_t, θ_1, θ_2, r_e)
-# Nozzle length [units: meter]
-x_e = nozzle_shape_param[11]
-# Nozzle throat position [units: meter]
-x_t = nozzle_shape_param[9]
+# # Chamber straight section length [units: meter]
+# x_s = 0.5
+# # Chamber radius [units: meter]
+# r_c = 0.5
+# # Throat radius [units: meter]
+r_t = 0.1
+# # Exit radius [units: meter]
+# r_e = 1
+# # Convergent angle [units: radian]
+# θ_1 = deg2rad(15)
+# # Divergent circle angle [units: radian]
+# θ_2 = deg2rad(15)
+# # Find the nozzle shape parameters
+# nozzle_shape_param = nozzle_parameters(x_s, r_c, r_t, θ_1, θ_2, r_e)
+# # Nozzle length [units: meter]
+# x_e = nozzle_shape_param[11]
+# # Nozzle throat position [units: meter]
+# x_t = nozzle_shape_param[9]
+x_t = 1
+x_e = 2
 
 # Step sizes
 Δx = x_e / Nx
@@ -107,15 +109,15 @@ println(Δt)
 # end
 
 function y(ξ, η)
-    return (η - Δy) * nozzle_contour(ξ - Δx, nozzle_shape_param)
+    return (η - Δy) * (1/4 * (ξ - x_t)^2 +  r_t)
 end
 
 function dy_dξ(ξ, η)
-    return (η - Δy) * nozzle_contour_derivative(ξ - Δx, nozzle_shape_param)
+    return (η - Δy) / 2 * (ξ - x_t)
 end
 
 function dy_dη(ξ, η)
-    return nozzle_contour(ξ - Δx, nozzle_shape_param)
+    return (1/4 * (ξ - x_t)^2 +  r_t)
 end
 
 ps = ProblemSpec(air, Δt, Δx, Δy, top_bound, right_bound, bottom_bound,
