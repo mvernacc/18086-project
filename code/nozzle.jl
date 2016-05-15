@@ -19,7 +19,7 @@ using PyPlot
 T_c = 2000.
 p_c  = 5e6
 M_in = 0.3
-U_inlet = pTM2u(p_c, T_c, M_in, 0, air)
+U_inlet = poToM2u(p_c, T_c, M_in, 0, air)
 
 # Exit pressue [units: pascal]
 p_e = 5e6 / 35
@@ -51,14 +51,15 @@ end
 function left_bound(U, i, j, ps)
     # return ghost_pT(U, p_c, T_c, ps.gas)
     # return U_inlet
-    n = [1, ps.dy_dξ(0, j * ps.Δy)]
-    n = n / norm(n)
-    return pTM2u(
-        p_c,
-        T_c,
-        M_in * n[1],
-        M_in * n[2],
-        air)
+    # n = [1, ps.dy_dξ(0, j * ps.Δy)]
+    # n = n / norm(n)
+    # return pTM2u(
+    #     p_c,
+    #     T_c,
+    #     M_in * n[1],
+    #     M_in * n[2],
+    #     air)
+    return ghost_poTo(U, p_c, T_c, ps.gas)
 end
 
 # Grid size

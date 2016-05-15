@@ -13,7 +13,7 @@ unused = 0
 
 using CFD086
 
-export ghost_zerograd, ghost_p, ghost_pT, ghost_wall, pad_bounds
+export ghost_zerograd, ghost_p, ghost_pT, ghost_poTo, ghost_wall, pad_bounds
 
 # Ghost cell functions.
 # These functions return the ghost cells which are used to
@@ -68,6 +68,29 @@ function ghost_pT(U::Array{Float64, 1}, p_bound::Float64, T_bound::Float64, gas:
     u = U[2] / U[1]
     v = U[3] / U[1]
     return pTvel2u(p_bound, T_bound, u, v, gas)
+end
+
+
+@doc """
+Stagnation Pressure and temperature boundary.
+
+Arguments:
+    U: 4-vector of conservative variables, at the cell on the edge of the grid.
+    p_bound: boundary stagnation pressure [units: pascal].
+    T_bound: boundary stagnation temperature [units: kelvin].
+    gas: Gas properties.
+
+Returns:
+    4-vector of conservative variables, at the ghost cell on the outside of the boundary.
+""" ->
+function ghost_poTo(U::Array{Float64, 1}, p_bound::Float64, T_bound::Float64, gas::Gas)
+    u = U[2] / U[1]
+    v = U[3] / U[1]
+    a = u2a(U, gas)
+    Mx = u / a
+    My = v / a
+
+    return poToM2u(p_bound, T_bound, Mx, My, gas)
 end
 
 
