@@ -88,7 +88,7 @@ x_t = nozzle_shape_param[9]
 # Step sizes
 Δx = x_e / Nx
 Δy = 1 / Ny
-Δt = 0.4 * Δt_cfl(U_inlet[2] / U_inlet[1], U_inlet[3] / U_inlet[1], 340, Δx, Δy)
+Δt = 0.4 * Δt_cfl(2e3, 3e2, u2a(U_inlet, air), Δx, Δy)
 
 println(Δt)
 
