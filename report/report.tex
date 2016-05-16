@@ -289,6 +289,23 @@ The finite volume scheme was developed after finite differences, and is somewhat
     \label{fig:finite_volume}
 \end{figure}
 
+\subsubsection{Time Update Scheme}
+Several algorithms are used to approximate the integration of $U$ through time. These are broadly divided into explicit and implicit techniques.
+
+\paragraph{Explicit}
+Explicit techniques define $U^{n+1}$ as an explicit function of previous time steps $U^{n}, U^{n-1}, ...$. They are usually easier to implement and require less computation per step than implicit techniques. However, their stability is limited to sufficiently small time steps. The Courant-Friedrichs-Lewy (CFL) condition provides an upper bound for the allowable time step:
+\begin{equation}
+    \Delta t < (\Delta t)_{CFL} = \frac{1}{\frac{|u|}{\Delta x} + \frac{|v|}{\Delta y} + a \sqrt{\frac{1}{\Delta x^2} + \frac{1}{\Delta y^2}}}
+\end{equation}
+
+MacCormack is a common explicit method for the Euler and Navier-Stokes equations, but other explicit methods (Runge-Kutta, Lax-Wendroff) have been successfully used as well.
+
+\paragraph{Implicit}
+Implicit techniques define an implicit relation between $U^{n+1}$ and $U^n$. To find $U^{n+1}$, a (usually linear) system of equations must be solved. Implicit techniques are more difficult to implement and require more computation at each step (to solve the system of equations). However, their stability is not restricted to small time steps, so (if high resolution in time is not desired) less steps need to be computed, reducing the overall computation requirements.\\
+
+Beam-Warming is a commonly used implicit method.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
 \subsection{Computation Platform}
