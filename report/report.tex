@@ -37,7 +37,7 @@
 \usepackage[pdftex]{graphicx}   
 \usepackage{url}
 \usepackage{physics}
-
+\usepackage{siunitx}
 
 %%% Custom sectioning
 \usepackage{sectsty}
@@ -110,12 +110,14 @@ There are $4 + n$ equations which relate these variables:
 \paragraph{Continuity Equation}
 The continuity equation enforces the conservation of mass.
 \begin{equation}
+    \label{eqn:ns_continuity}
     \pdv{\rho}{t} + \nabla \cdot (\rho \vec{u}) = 0
 \end{equation}
 
 \paragraph{Momentum Equations}
 The momentum equations (one for each spatial dimension) enforce Newton's Laws. They relate the inertia of the fluid to the pressure, viscous, and external forces.
 \begin{equation}
+    \label{eqn:ns_momentum}
     \pdv{\vec{u}}{t} + \vec{u} \cdot \nabla \vec{u} = - \frac{1}{\rho} \nabla p + \nu \nabla^2 \vec{u} + \frac{1}{3} \nu \nabla (\nabla \cdot \vec{u}) + \vec{F}
 \end{equation}
 where $\nu$ is the kinematic viscosity (a property of the fluid) and $\vec{F}$ is an external force applied to the fluid per unit mass.
@@ -123,6 +125,7 @@ where $\nu$ is the kinematic viscosity (a property of the fluid) and $\vec{F}$ i
 \paragraph{Energy Equation}
 The energy equation enforces the conservation of energy. It relates the change in internal energy of the fluid to pressure work, viscous work, and thermal conduction.
 \begin{equation}
+    \label{eqn:ns_energy}
     \rho(\pdv{e}{t} + \vec{u} \cdot \nabla e) = - p \nabla \vec{u} + \Phi + \nabla \cdot (k \nabla T)
 \end{equation}
 where $\Phi$ is a viscous term dependent on the velocity second derivatives of velocity and $\nu$, and $k$ is the thermal conductivity (a property of the fluid).
@@ -130,6 +133,7 @@ where $\Phi$ is a viscous term dependent on the velocity second derivatives of v
 \paragraph{Thermodynamic Relation}
 The thermodynamic relation links the internal energy to the temperature and pressure.
 \begin{equation}
+    \label{eqn:ns_thermo}
     e = e(T, p)
 \end{equation}
 For a calorically perfect gas,
@@ -141,13 +145,19 @@ where $c_v$ is the gas's heat capacity at constant volume. Most real gases can b
 \paragraph{Equation of State}
 The equation of state relates the fluid's pressure, density, and temperature.
 \begin{equation}
+    \label{eqn:ns_state}
     \rho = \rho(p, T)
 \end{equation}
 A common equation of state is the ideal gas law:
 \begin{equation}
     \rho = \frac{p}{R T}
 \end{equation}
-where $R$ is the specific gas constant (a property of the fluid).
+where $R$ is the specific gas constant (a property of the fluid). For a gas that is also calorically perfect, the ideal gas law can be written as:
+\begin{equation}
+    \label{eqn:prhoe}
+    \rho = \frac{p}{(\gamma - 1) e}
+\end{equation}
+where $\gamma = c_p / c_v$ is the ratio of specific heats (a property of the fluid).
 
 \subsubsection{Non-Dimensional Parameters}
 Two important non-dimensional parameters define flow regimes where the behavior of the Navier-Stokes equations are different.
@@ -169,18 +179,71 @@ Where $L$ is a length scale of the problem, such as the chord of a wing or the d
 If the Reynolds number is high, then viscous forces are small compared to the inertia of the flow, and can be neglected for certain calculations. This leads to an important simplification of the Navier-Stokes equations.
 
 \subsubsection{Euler Equations}
-In the context of fluid dynamics, the Euler equations are a simplification of the Navier-Stokes equations, with no viscosity or thermal conductivity ($\nu = k = 0$). They provide a good approximation of certain high Reynolds number problems.
+In the context of fluid dynamics, the Euler equations are a simplification of the Navier-Stokes equations, with no viscosity or thermal conductivity ($\nu = k = 0$). They provide a good approximation of certain high Reynolds number problems. The modified momentum and energy equations are written below. The continuity equation (\ref{eqn:ns_continuity}), thermodynamic relation (\ref{eqn:ns_thermo}), and equation of state (\ref{eqn:ns_state}) did not contain viscosity or conductivity terms, and are therefore unchanged.  
 
-\paragraph{Momentum Equation}
+\paragraph{Euler Momentum Equation}
 \begin{equation}
     \pdv{\vec{u}}{t} + \vec{u} \cdot \nabla \vec{u} = - \frac{1}{\rho} \nabla p + \vec{F}
 \end{equation}
 
-\subsubsection{Euler Equations in Conservative Form}
+\paragraph{Euler Energy Equation}
+\begin{equation}
+    \rho(\pdv{e}{t} + \vec{u} \cdot \nabla e) = - p \nabla \vec{u}
+\end{equation}
 
+\subsubsection{Euler Equations in Conservative Form}
+The Euler equations can be written in a conservative, vectorized, flux-based form. This form is convenient for numerical techniques. I will present the conservative form in 2 dimensions, but it can also be developed in 1 or 3. I assume a 2D Cartesian coordinate system with spatial directions $x$ and $y$. The state of the fluid is represented by the vector $U$ (not to be confused with the velocity vector, $\vec{u}$):
+\begin{equation}
+    U = 
+    \begin{bmatrix}
+        \rho \\
+        \rho u \\
+        \rho v \\
+        E
+    \end{bmatrix}
+\end{equation}
+where:
+\begin{itemize}
+    \item $u$ and $v$ are the velocity components in the $x$ and $y$ directions. $\vec{u} = [u, v]^T$.
+    \item $\rho u$ and $\rho v$ are the momentum per unit volume in the the $x$ and $y$ directions. The have units of mass per area-time (\si{\kilo\gram\per\meter\squared\second} in SI).
+    \item $E$ is the total energy per unit volume. $E = \rho (e + \frac{1}{2}(u^2 + v^2))$. $E$ has units of energy per volume, which is equal to units of pressure (in SI, \si{\joule\per\meter\cubed} or \si{\pascal}).
+\end{itemize}
+
+Next, define fluxes $F$ and $G$ for the $x$ and $y$ directions:
+\begin{equation}
+    F = 
+        \begin{bmatrix}
+            \rho u \\
+            \rho u^2 + p \\
+            \rho u v \\
+            (E + p)u \\
+        \end{bmatrix}
+\end{equation}
+\begin{equation}
+    G = 
+        \begin{bmatrix}
+            \rho v \\
+            \rho u v \\
+            \rho v^2 + p \\
+            (E + p)v \\
+        \end{bmatrix}
+\end{equation}
+
+The Euler continuity, energy, and momentum equations can be written as:
+\begin{equation}
+    \pdv{U}{t} + \pdv{F}{x} + \pdv{G}{y} = 0
+\end{equation}
+
+Although pressure and temperature are not included in the state vector $U$, they can be uniquely determined from $U$ using the equation of state and thermodynamic relation. In the case of a calorically perfect gas,
+\begin{equation}
+    p = (\gamma - 1) \left( E - \frac{1}{2} \rho (u^2 + v^2) \right)
+\end{equation}
+
+\begin{equation}
+    T = \frac{1}{c_v} \left( \frac{E}{\rho} - (u^2 + v^2) \right)
+\end{equation}
 
 \subsection{Numerical Techniques}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
 \subsection{Computation Platform}
