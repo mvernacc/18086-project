@@ -325,16 +325,91 @@ A popular class of modern shock handling schemes are the Total Variation Diminis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
 \subsection{Computation Platform}
-I implemented my solver in the Julia programming language (v 0.4.2). I performed my computations on a laptop computer with 6 GB RAM and an Intel i5-2410M CPU (2 cores at $\SI{2.3}{\giga\hertz}$) running 64 bit Ubuntu 14.04.
+I implemented my solver in the Julia programming language (v 0.4.2). I performed my computations on a laptop computer with 6 GB RAM and an Intel i5-2410M CPU (2 cores at $\SI{2.3}{\giga\hertz}$) running 64 bit Ubuntu 14.04.\\
+
+My code is available at \url{https://github.mit.edu/mvernacc/18086-project}.
 
 \subsection{Solver}
+I chose a finite difference MacCormack scheme because of its implementation simplicity.
+
 \subsubsection{Time Update: MacCormack Scheme}
+The MacCormack scheme operates in 2 steps: a predictor and a corrector.
+\begin{equation}
+    U^*_{i,j} = U^n_{i,j} - \frac{\Delta t}{\Delta x} (F^n_{i+1,j} - F^n_{i,j}) - \frac{\Delta t}{\Delta y}(G^n_{i,j+1} - G^n_{i,j})
+\end{equation}
+\begin{equation}
+    U^{n+1}_{i,j} = \frac{1}{2}(U^n_{i,j} + U^*_{i,j}) - \frac{\Delta t}{2 \Delta x} (F^*_{i,j} - F^*_{i-1,j}) - \frac{\Delta t}{2 \Delta y}(G^*_{i,j} - G^*_{i,j-1})
+\end{equation}
+
+where $F*$ is the flux calculated using $U^*$.
+    
 
 \subsubsection{Shock Capturing: Artificial Dissipation}
+To reduce oscillations around shocks, I use the following artificial dissipation scheme, taken from D. Lobao 2010:
+\begin{equation}
+    F^{ad}_{i,j} = \frac{1}{2}(d_{i+1, j} - d_{i-1,j}
+\end{equation}
+
+\begin{equation}
+    d_{i,j} = \epsilon^{(2)}_{i,j}(U_{i,j} - U_{i-1,j}) - \epsilon^{(4)}_{i,j} \Phi_{i,j}
+\end{equation}
+
+\begin{equation}
+    \Phi_{i,j} = U_{i+1,j} - 3 U_{i,j} + 3 U_{i-1,j} - U_{i-2,j}
+\end{equation}
+
+\begin{equation}
+    \nu_{i,j} = \frac{|p_{i+1,j} - 2 p_{i,j} + p_{i+1,j}|}{p_{i+1,j} + 2 p_{i,j} + p_{i+1,j}}
+\end{equation}
+
+\begin{equation}
+    \epsilon^{(2)}_{i,j} = k^{(2)} \nu_{i-1,j} (|\vec{u}| + a)_{i,j}
+\end{equation}
+
+\begin{equation}
+    \epsilon^{(4)}_{i,j} = \max(0, k^{(4)} - \epsilon^{(2)}_{i,j}) (|\vec{u}| + a)_{i,j}
+\end{equation}
+
+The artificial dissipation in the $y$ direction is analogous. $k^{(2)}$ and $k^{(4)}$ are tuneable parameters. Lobao recommends values of $k^{(2)} = 1/4$ and $k^{(4)} = 1/256$. I found $k^{(2)} = 1/4$ and $k^{(4)} = 1/32$ to be more suitable.\\
+
+While the MacCormack scheme only depends on neighboring cells, the artificial dissipation terms depend on cells up to 3 away. This wider spread introduces diffusion, which reduces the magnitude of local extrema.
 
 \subsubsection{Curvilinear Coordinates}
+Curvilinear coordinates are required to handle domains which are not made up of rectangular segments. Consider a coordinate transform
+\begin{equation}
+    (x, y) \rightarrow (\xi(x,y), \eta(x,y))
+\end{equation}
+where $(x,y)$ are physical coordinates and $(\xi, \eta)$ are grid coordinates, i.e. $i = \xi / \Delta \xi, j = \eta / \Delta \eta$.
+
+We can write the Euler conservation equation in terms of the transformed state and flux:
+\begin{equation}
+    J = \frac{1}{x_\xi y_\eta - x_\eta y_\xi}
+\end{equation}
+
+\begin{equation}
+    U" = \frac{U}{J}
+\end{equation}
+
+\begin{equation}
+    F" = y_\eta F = x_\eta G
+\end{equation}
+
+\begin{equation}
+    G" = -y_\xi F + x_\xi G 
+\end{equation}
+
+\begin{equation}
+    \pdv{U"}{t} + \pdv{F"}{\xi} + \pdv{G"}{\eta} = 0
+\end{equation}
 
 \subsubsection{Boundary Conditions}
+Boundary conditions are implemented by padding the $U$ grid with ghost cells.\\
+
+At walls, the ghost cells have the same $\rho$ and $E$ as their internal siblings, but the velocity vector is reflected about the wall tangent. This enforces a non-penetration condition at the wall. Non-penetration is the appropriate velocity wall condition for the Euler equations; for the full Navier-Stokes equations a non-slip condition would also be required.\\
+
+At the inlet, the full state $U$ is specified.\\
+
+The outlet is free, i.e. the ghost cell is equal to the internal sibling cell.\\
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
