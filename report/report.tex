@@ -305,10 +305,27 @@ Implicit techniques define an implicit relation between $U^{n+1}$ and $U^n$. To 
 
 Beam-Warming is a commonly used implicit method.
 
+\subsubsection{Shock Capturing}
+Hyperbolic PDEs present a challenge to numerical algorithms. In the case of the Euler equations, solvers tend to exhibit non-physical oscillations near shocks. These oscillations can impart the stability of the algorithm, and reduce the accuracy of the solution. To properly capture flow with shocks, modifications must be made to the algorithm to reduce these oscillations. This is achieved by adding artificial dissipation or limiting the flux.\\
+
+\paragraph{Classical Schemes}
+Classical schemes for shock handling use a classical time and gradient scheme (e.g. MacCormack) and add artificial dissipation.
+
+\paragraph{Modern Schemes}
+A popular class of modern shock handling schemes are the Total Variation Diminishing (TVD) methods. These have the property the the magnitude of the local extrema of the solution monotonically decrease with time. They handle shocks well, but only provide 1st order spatial accuracy. Newer algorithms include the Monotonic Upstream-centered Schemes for Conservation Laws (MUSCL) and Essentially Non-Oscillatory (ENO) methods.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{figures/lobao_mc_tvd.png}
+    \caption{A comparison of shock capturing schemes. This figure shows the coefficient of pressure along the surface of a wall. The wall has a small parabolic bump the protrudes into the flow from $x = 0$ to $x = 1$. The inlet flow is subsonic ($M= 0.85$) but the fluid accelerates to sonic speed over the bump, and a shock exists at the rear of the bump. A MacCormack solver with artificial dissipation (black curve) gives non-physical pressure oscillations upstream of the bump. A TVD solver (red curve) does not. Figure reprinted from D. Lobao 2010.}
+    \label{fig:lobao_mc_tvd}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
 \subsection{Computation Platform}
+I implemented my solver in the Julia programming language (v 0.4.2). I performed my computations on a laptop computer with 6 GB RAM and an Intel i5-2410M CPU (2 cores at $\SI{2.3}{\giga\hertz}$) running 64 bit Ubuntu 14.04.
 
 \subsection{Solver}
 \subsubsection{Time Update: MacCormack Scheme}
