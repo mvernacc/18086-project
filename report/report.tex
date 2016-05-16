@@ -445,8 +445,49 @@ I first demonstrate my solver on a shock tube to illustrate the necessity of art
 
 
 \subsection{Mach $1.5$ Ramp}
-Next, I simulate Mach $1.5$ flow in a tunnel with a $\SI{10}{\degree}$ ramp.
+Next, I simulate Mach $1.5$ flow in a tunnel with a $\SI{10}{\degree}$ ramp. This example is applicable to the design of intake ramps for supersonic air-breathing propulsion systems (see Figure \ref{fig:F-15_ramp}). It illustrates several important features of supersonic flow: a shock, an expansion fan, and shock reflections. Figure \ref{fig:mach_ramp} shows the expected locations of these features, and the boundary conditions of the problem. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.4 \textwidth]{figures/F-15_ramp.jpg}
+    \caption{The inlet ramps of a McDonald-Douglas F-15E Strike Eagle. Reprinted from Wikipedia.}
+    \label{fig:F-15_ramp}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{figures/mach_ramp.png}
+    \caption{The boundary conditions and expected features of the ramp problem.}
+    \label{fig:mach_ramp}
+\end{figure}
+
+I started the problem from a uniform initial condition equal to the inlet, and ran 2,200 iterations of the MacCormack solver with artificial dissipation. I used a 120 by 40 grid, and a time step equal to $0.4 (\Delta t)_{CFL}$.\\
+
+The evolution of the solution is shown in Figure \ref{fig:ramp_evolution}. First, a low density region forms at the top wall as the fluid diverges away from the wall. A high density region forms at the lower wall as fluid impacts the wall. These regions are due to the non-physical initial conditions, which set the velocity to be horizontal everywhere, violating the non-penetration condition at the tilted walls.\\
+
+Next, we see the growth of a shockwave from the bottom corner and an expansion fan from the top corner. The density increases across the shock and decreases across the fan. As the shock continues to grow, it reflects off of the top wall.\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = \textwidth]{{../code/results/ramp10/ad_k2=4_k4=64/t=2329.268us}.png}
+    \includegraphics[width = \textwidth]{{../code/results/ramp10/ad_k2=4_k4=64/t=9982.578us}.png}
+    \includegraphics[width = \textwidth]{{../code/results/ramp10/ad_k2=4_k4=64/t=17968.640us}.png}
+    \caption{The evolution of the ramp problem solution.}
+    \label{fig:ramp_evolution}
+\end{figure}
+
+Figure \ref{fig:ramp_ss} shows the steady-state of the ramp problem solution. All of the expected features are present. The shocks are crisp, only 2 or 3 mesh points wide. However, non-physical oscillations are also present after the first and second shock reflections. These could be reduced by increases the artificial dissipation, but at the cost of blurring the shocks. To eliminated the oscillations, a more advanced solver, such as TVD, MUSCL or ENO must be used in place of MacCormack.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = \textwidth]{{../code/results/ramp10/ad_k2=4_k4=64/t=71541.807us}.png}
+    \caption{The steady-state ramp problem solution.}
+    \label{fig:ramp_ss}
+\end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
+I have implemented a 2D finite difference MacCormack algorithm to solver the compressible Euler equations. The solver uses curvilinear coordinates and contains artificial dissipation terms. The solver is able to stably resolve shocks, both due to pressure discontinuities and due to supersonic flow. However, as is typical of MacCormack solvers, noticeable non-physical oscillations are present near shocks, even with artificial dissipation. I applied the solver to the simulation of a shock tube and of supersonic flow over a ramp.
 
 \end{document}
