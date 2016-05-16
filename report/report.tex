@@ -415,9 +415,37 @@ The outlet is free, i.e. the ghost cell is equal to the internal sibling cell.\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \subsection{Shock Tube}
+I first demonstrate my solver on a shock tube to illustrate the necessity of artificial dissipation. A shock tube contains a high and low pressure region separated by a diaphragm. At $t=0$, the diaphragm bursts, leaving a pressure discontinuity in the tube. A shock wave travels from the discontinuity into the low pressure region, and an expansion fan travels into the high pressure region. A region of uniform, intermediate pressure is left between the shock and the expansion fan.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{figures/shock_tube.png}
+    \caption{A shock tube. Reprinted from Wikipedia.}
+    \label{fig:shock_tube}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.4 \textwidth]{../code/results/shock_tube/it0.png}
+    \includegraphics[width = 0.4 \textwidth]{../code/results/shock_tube/it6.png}
+    \includegraphics[width = 0.4 \textwidth]{../code/results/shock_tube/it14.png}
+    \includegraphics[width = 0.4 \textwidth]{../code/results/shock_tube/it18.png}
+    \caption{The evolution of pressure in the shock tube. Compare the (unstable) solution without artificial dissipation (blue) to the solution with artificial dissipation (red)}
+    \label{fig:shock_tube_evolution}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{figures/shock_tube_mc_vs_ideal.png}
+    \caption{My simulated shock tube results compared to the theoretical solution. Although the artificial dissipation algorithm is stable, it shows non-physical oscillations between the shock and the expansion fan.}
+    \label{fig:shock_tube_mc_vs_ideal}
+\end{figure}
+
 
 \subsection{Mach $1.5$ Ramp}
-
+Next, I simulate Mach $1.5$ flow in a tunnel with a $\SI{10}{\degree}$ ramp.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
 
