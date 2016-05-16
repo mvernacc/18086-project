@@ -36,6 +36,7 @@
 \usepackage{amsmath,amsfonts,amsthm} % Math packages
 \usepackage[pdftex]{graphicx}   
 \usepackage{url}
+\usepackage{physics}
 
 
 %%% Custom sectioning
@@ -94,6 +95,89 @@ Numerical solutions to fluid flow problems (Computational Fluid Dynamics) now en
 
 
 \subsection{Governing Equations}
+\subsubsection{Navier-Stokes Equations}
+Fluid flow (whether subsonic or supersonic) is governed by the Navier Stokes equations. In $n$ dimensions, these equations contain $4 + n$ unknowns at each point in space and time:
+\begin{itemize}
+    \item Pressure, $p$
+    \item Density, $\rho$
+    \item Internal energy, $e$
+    \item Temperature, $T$
+    \item Velocity, $\vec{u}$
+\end{itemize}
+
+There are $4 + n$ equations which relate these variables:
+
+\paragraph{Continuity Equation}
+The continuity equation enforces the conservation of mass.
+\begin{equation}
+    \pdv{\rho}{t} + \nabla \cdot (\rho \vec{u}) = 0
+\end{equation}
+
+\paragraph{Momentum Equations}
+The momentum equations (one for each spatial dimension) enforce Newton's Laws. They relate the inertia of the fluid to the pressure, viscous, and external forces.
+\begin{equation}
+    \pdv{\vec{u}}{t} + \vec{u} \cdot \nabla \vec{u} = - \frac{1}{\rho} \nabla p + \nu \nabla^2 \vec{u} + \frac{1}{3} \nu \nabla (\nabla \cdot \vec{u}) + \vec{F}
+\end{equation}
+where $\nu$ is the kinematic viscosity (a property of the fluid) and $\vec{F}$ is an external force applied to the fluid per unit mass.
+
+\paragraph{Energy Equation}
+The energy equation enforces the conservation of energy. It relates the change in internal energy of the fluid to pressure work, viscous work, and thermal conduction.
+\begin{equation}
+    \rho(\pdv{e}{t} + \vec{u} \cdot \nabla e) = - p \nabla \vec{u} + \Phi + \nabla \cdot (k \nabla T)
+\end{equation}
+where $\Phi$ is a viscous term dependent on the velocity second derivatives of velocity and $\nu$, and $k$ is the thermal conductivity (a property of the fluid).
+
+\paragraph{Thermodynamic Relation}
+The thermodynamic relation links the internal energy to the temperature and pressure.
+\begin{equation}
+    e = e(T, p)
+\end{equation}
+For a calorically perfect gas,
+\begin{equation}
+    e = c_v T
+\end{equation}
+where $c_v$ is the gas's heat capacity at constant volume. Most real gases can be approximated as calorically perfect over small ranges of temperature.
+
+\paragraph{Equation of State}
+The equation of state relates the fluid's pressure, density, and temperature.
+\begin{equation}
+    \rho = \rho(p, T)
+\end{equation}
+A common equation of state is the ideal gas law:
+\begin{equation}
+    \rho = \frac{p}{R T}
+\end{equation}
+where $R$ is the specific gas constant (a property of the fluid).
+
+\subsubsection{Non-Dimensional Parameters}
+Two important non-dimensional parameters define flow regimes where the behavior of the Navier-Stokes equations are different.
+
+\paragraph{Mach Number}
+The Mach number is the local velocity normalized by the local speed of sound.
+\begin{equation}
+    M = \frac{|\vec{u}|}{a}
+\end{equation}
+where $a$ is the local speed of sound (a function of the temperature and fluid properties). Mach numbers less than 1 are subsonic; while Mach numbers greater than one are supersonic.\\
+For subsonic flow, the Navier-Stokes equations are classified as elliptic PDEs, and their solutions are smooth. For supersonic flow, the Navier-Stokes PDEs are parabolic: information does not propagate upstream in the flow, and sharp changes in the solution variables (shocks) can exist.
+
+\paragraph{Reynolds Number}
+The Reynolds number gives the relative strength of inertia and viscous forces.
+\begin{equation}
+    Re = \frac{|\vec{u}| L}{\nu}
+\end{equation}
+Where $L$ is a length scale of the problem, such as the chord of a wing or the diameter of a pipe.\\
+If the Reynolds number is high, then viscous forces are small compared to the inertia of the flow, and can be neglected for certain calculations. This leads to an important simplification of the Navier-Stokes equations.
+
+\subsubsection{Euler Equations}
+In the context of fluid dynamics, the Euler equations are a simplification of the Navier-Stokes equations, with no viscosity or thermal conductivity ($\nu = k = 0$). They provide a good approximation of certain high Reynolds number problems.
+
+\paragraph{Momentum Equation}
+\begin{equation}
+    \pdv{\vec{u}}{t} + \vec{u} \cdot \nabla \vec{u} = - \frac{1}{\rho} \nabla p + \vec{F}
+\end{equation}
+
+\subsubsection{Euler Equations in Conservative Form}
+
 
 \subsection{Numerical Techniques}
 
