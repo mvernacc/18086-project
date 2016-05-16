@@ -38,6 +38,7 @@
 \usepackage{url}
 \usepackage{physics}
 \usepackage{siunitx}
+\usepackage{float}
 
 %%% Custom sectioning
 \usepackage{sectsty}
@@ -211,6 +212,11 @@ where:
     \item $E$ is the total energy per unit volume. $E = \rho (e + \frac{1}{2}(u^2 + v^2))$. $E$ has units of energy per volume, which is equal to units of pressure (in SI, \si{\joule\per\meter\cubed} or \si{\pascal}).
 \end{itemize}
 
+The state of the fluid is a function of space and time:
+\begin{equation}
+    U = U(x, y, t)
+\end{equation}
+
 Next, define fluxes $F$ and $G$ for the $x$ and $y$ directions:
 \begin{equation}
     F = 
@@ -246,8 +252,42 @@ Although pressure and temperature are not included in the state vector $U$, they
 \end{equation}
 
 \subsection{Numerical Techniques}
+Many numerical techniques exist for solving the Euler equations. I classify these techniques by 3 choices: the spatial flux scheme, the time update scheme, and the shock capturing technique.\\
+In all techniques, the solution is discretized spatially onto a grid or mesh. The state $U$ of each grid node is stored, this set of $U$s represents the state of the system at a point in time. An update function uses this data to calculate the set of $U$s at the next time step.
 
+\subsubsection{Spatial Flux Scheme}
+Two major techniques exist for capturing the spatial derivative terms: finite differences and finite volume.
 
+\paragraph{Finite Differences}
+In the Finite Difference technique, the fluxes $F$ and $G$ are calculated at each grid point. To find the time derivative of $U$ at grid point $i, j$, one uses the flux values at the neighbor points to estimate the spatial gradients of $F$ and $G$. These gradients can be calculated using a central difference or upwind stencil. Finite difference techniques were the first to be developed, and are simpler to implement.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{figures/finite_diff.png}
+    \caption{Finite Difference scheme.}
+    \label{fig:finite_diff}
+\end{figure}
+
+\paragraph{Finite Volumes}
+In the Finite Volume technique, a boundary $B$ is defined around each grid point, which encloses a finite volume $V$ of space. The fluxes $F$ and $G$ are calculated between grid points, on the sides of $B$. Using the divergence theorem, we write the time rate of change of $U$ within $V$ as surface integral of the fluxes over $B$:
+\begin{equation}
+    \pdv{}{t} \left( \iint_V U dV \right) = \oint_B (F \hat{x} + G \hat{y}) \cdot \hat{n} dB
+\end{equation}
+
+To discretized this equation, we choose $V$ small enough that $U$ can be assumed to have a uniform value within it. Then,
+
+\begin{equation}
+    \frac{\Delta U}{\Delta t}_{i,j} = \frac{1}{V} \oint_{B_{i,j}} (F \hat{x} + G \hat{y}) \cdot \hat{n} dB
+\end{equation}
+
+The finite volume scheme was developed after finite differences, and is somewhat harder to implement (on a Cartesian grid). However, it is conservative, and is easier to apply to unstructured meshes. Guaranteed conservation and applicability to complicated geometries are valuable for solving engineering problems. Therefore, finite volumes are used in most modern CFD software.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{figures/finite_volume.png}
+    \caption{Finite Volume scheme.}
+    \label{fig:finite_volume}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Implementation}
